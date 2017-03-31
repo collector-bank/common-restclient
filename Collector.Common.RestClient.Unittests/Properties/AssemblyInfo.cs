@@ -1,14 +1,15 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Collector.Common.RestClient")]
+[assembly: AssemblyTitle("Collector.Common.RestClient.Unittests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Collector")]
-[assembly: AssemblyProduct("Collector.Common.RestClient")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Collector.Common.RestClient.Unittests")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("5d15908d-91fc-43db-b554-ca54794bbe42")]
+[assembly: Guid("ff257b49-05ac-40a3-975e-fd5c021b4a0a")]
 
 // Version information for an assembly consists of the following four values:
 //
