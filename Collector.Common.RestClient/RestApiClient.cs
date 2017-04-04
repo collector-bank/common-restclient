@@ -9,12 +9,10 @@ namespace Collector.Common.RestClient
     using System;
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
-    using System.Net;
     using System.Threading.Tasks;
 
     using Collector.Common.Library.Collections;
     using Collector.Common.Library.Validation;
-    using Collector.Common.RestClient.Authorization;
     using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Interfaces;
     using Collector.Common.RestContracts;
@@ -153,7 +151,7 @@ namespace Collector.Common.RestClient
                 restRequest,
                 response =>
                 {
-                    if (response.StatusCode < HttpStatusCode.OK || response.StatusCode >= (HttpStatusCode)299)
+                    if (!IsSuccessStatusCode(response))
                     {
                         taskCompletionSource.SetException(new RestApiException(message: "Failed with code " + response.StatusCode, errorCode: NULL_RESPONSE));
                         return;
@@ -169,5 +167,7 @@ namespace Collector.Common.RestClient
 
             return taskCompletionSource.Task;
         }
+
+        public bool IsSuccessStatusCode(IRestResponse response) => ((int)response.StatusCode >= 200) && ((int)response.StatusCode <= 299);
     }
 }
