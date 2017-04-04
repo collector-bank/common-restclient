@@ -7,8 +7,8 @@
     <ProjectGuid>{FF257B49-05AC-40A3-975E-FD5C021B4A0A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Collector.Common.RestClient.Unittests</RootNamespace>
-    <AssemblyName>Collector.Common.RestClient.Unittests</AssemblyName>
+    <RootNamespace>Collector.Common.RestClient.UnitTests</RootNamespace>
+    <AssemblyName>Collector.Common.RestClient.UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

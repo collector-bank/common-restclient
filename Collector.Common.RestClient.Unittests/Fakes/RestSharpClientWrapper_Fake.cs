@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient.Unittests.Fakes
+namespace Collector.Common.RestClient.UnitTests.Fakes
 {
     using System;
     using System.Net;

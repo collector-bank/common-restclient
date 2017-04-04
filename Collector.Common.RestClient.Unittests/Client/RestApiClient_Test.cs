@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient.Unittests.Client
+namespace Collector.Common.RestClient.UnitTests.Client
 {
     using System;
     using System.ComponentModel.DataAnnotations;
@@ -13,7 +13,7 @@ namespace Collector.Common.RestClient.Unittests.Client
     using Collector.Common.RestClient.Authorization;
     using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Interfaces;
-    using Collector.Common.RestClient.Unittests.Fakes;
+    using Collector.Common.RestClient.UnitTests.Fakes;
     using Collector.Common.RestContracts;
     using Collector.Common.UnitTest.Helpers;
     using Collector.Common.UnitTest.Helpers.Autofixture;
