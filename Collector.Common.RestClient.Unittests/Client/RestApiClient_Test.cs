@@ -52,7 +52,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
             
             restClientWrapper.Authenticator.Authenticate(Fixture.Create<IRestClient>(), Fixture.Create<IRestRequest>());
 
-            authentication.AssertWasCalled(x => x.Get(Arg<string>.Is.Anything, Arg<Uri>.Is.Anything, Arg<HttpMethod>.Is.Anything));
+            authentication.AssertWasCalled(x => x.Get(Arg<IRestAuthorizeRequestData>.Is.Anything));
         }
 
         [Test, ExpectedException(typeof(ValidationException))]

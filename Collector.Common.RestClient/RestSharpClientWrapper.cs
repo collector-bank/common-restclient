@@ -13,9 +13,6 @@ namespace Collector.Common.RestClient
     using RestSharp;
     using RestSharp.Authenticators;
 
-    /// <summary>
-    /// The rest sharp client wrapper.
-    /// </summary>
     internal sealed class RestSharpClientWrapper : IRestSharpClientWrapper
     {
         public IAuthenticator Authenticator { get; set; }

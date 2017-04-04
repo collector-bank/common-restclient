@@ -49,6 +49,9 @@ namespace Collector.Common.RestClient
             _client = client;
         }
 
+        /// <summary>
+        /// Authorization header factory to be used for authentication 
+        /// </summary>
         public IAuthorizationHeaderFactory AuthorizationHeaderFactory
         {
             set

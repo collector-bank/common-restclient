@@ -6,12 +6,11 @@
 
 namespace Collector.Common.RestClient.Authorization
 {
-    using System;
     using System.Net;
 
     using Collector.Common.Jwt;
     using Collector.Common.RestClient.Exceptions;
-    using Collector.Common.RestContracts;
+    using Collector.Common.RestClient.Interfaces;
 
     using Newtonsoft.Json;
 
@@ -46,7 +45,7 @@ namespace Collector.Common.RestClient.Authorization
             }
         }
 
-        public string Get(string body, Uri uri, HttpMethod httpMethod)
+        public string Get(IRestAuthorizeRequestData restAuthorizeRequestData)
         {
             var token = GetJwtToken();
             return $"Bearer {token}";

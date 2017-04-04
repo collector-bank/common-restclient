@@ -4,21 +4,15 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient.Authorization
+namespace Collector.Common.RestClient.Interfaces
 {
-    using System;
-
-    using Collector.Common.RestContracts;
-
     public interface IAuthorizationHeaderFactory
     {
         /// <summary>
         /// Builds the header value to be used in the Authorization http header. 
         /// </summary>
-        /// <param name="body">Request Body</param>
-        /// <param name="uri">Requested URI</param>
-        /// <param name="httpMethod">HTTP request method</param>
+        /// <param name="restAuthorizeRequestData">The request data to build Authorization for.</param>
         /// <returns></returns>
-        string Get(string body, Uri uri, HttpMethod httpMethod);
+        string Get(IRestAuthorizeRequestData restAuthorizeRequestData);
     }
 }

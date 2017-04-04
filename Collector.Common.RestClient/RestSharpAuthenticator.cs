@@ -29,7 +29,9 @@ namespace Collector.Common.RestClient
         {
             var body = GetBody(request);
 
-            var authorizationHeaderValue = _authorizationHeaderFactory.Get(body, client.BuildUri(request), (HttpMethod)Enum.Parse(typeof(HttpMethod), request.Method.ToString()));
+            var httpRequestData = new RestAuthorizeRequestData(body, client.BuildUri(request), request.Method);
+
+            var authorizationHeaderValue = _authorizationHeaderFactory.Get(httpRequestData);
 
             request.AddParameter("Authorization", authorizationHeaderValue, ParameterType.HttpHeader);
         }

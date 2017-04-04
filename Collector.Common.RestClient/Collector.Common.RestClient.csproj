@@ -62,7 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Authorization\Auth0AuthorizationHeaderFactory.cs" />
-    <Compile Include="Authorization\IAuthorizationHeaderFactory.cs" />
+    <Compile Include="Interfaces\IAuthorizationHeaderFactory.cs" />
+    <Compile Include="Authorization\RestAuthorizeRequestData.cs" />
+    <Compile Include="Interfaces\IRestAuthorizeRequestData.cs" />
     <Compile Include="RestApiClient.cs" />
     <Compile Include="Exceptions\AuthException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
