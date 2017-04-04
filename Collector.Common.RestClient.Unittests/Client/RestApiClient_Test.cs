@@ -10,7 +10,6 @@ namespace Collector.Common.RestClient.UnitTests.Client
     using System.ComponentModel.DataAnnotations;
     using System.Net;
 
-    using Collector.Common.RestClient.Authorization;
     using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Interfaces;
     using Collector.Common.RestClient.UnitTests.Fakes;
@@ -124,7 +123,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
         }
 
         [Test, ExpectedException(typeof(RestApiException))]
-        public async void When_executing_call_async_and_the_response_has_does_not_have_2xx_status_code_it_throws_an_exception()
+        public async void When_executing_call_async_and_the_response_has_does_not_indicate_2xx_status_code_it_throws_an_exception()
         {
             var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = Fixture.Create<string>() };
 
