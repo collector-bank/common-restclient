@@ -13,7 +13,7 @@ namespace Collector.Common.RestClient.Authorization
 
     using RestSharp;
 
-    public class RestAuthorizeRequestData : IRestAuthorizeRequestData
+    internal class RestAuthorizeRequestData : IRestAuthorizeRequestData
     {
         public RestAuthorizeRequestData(string body, Uri uri, Method method)
             : this(body, uri, (HttpMethod)Enum.Parse(typeof(HttpMethod), method.ToString()))
