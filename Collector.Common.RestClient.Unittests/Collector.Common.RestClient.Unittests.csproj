@@ -7,8 +7,8 @@
     <ProjectGuid>{FF257B49-05AC-40A3-975E-FD5C021B4A0A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Collector.Common.RestClient.Unittests</RootNamespace>
-    <AssemblyName>Collector.Common.RestClient.Unittests</AssemblyName>
+    <RootNamespace>Collector.Common.RestClient.UnitTests</RootNamespace>
+    <AssemblyName>Collector.Common.RestClient.UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -34,27 +34,39 @@
       <HintPath>..\Collector.Common.RestClient\packages\Collector.Common.Library.3.2.6.0\lib\net45\Collector.Common.Library.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Collector.Common.RestContracts">
+      <HintPath>..\packages\Collector.Common.RestContracts.1.0.9.0\lib\net452\Collector.Common.RestContracts.dll</HintPath>
+    </Reference>
     <Reference Include="Collector.Common.UnitTest.Helpers, Version=3.0.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\Collector.Common.RestClient\packages\Collector.Common.UnitTest.Helpers.3.0.2\lib\net45\Collector.Common.UnitTest.Helpers.dll</HintPath>
+      <HintPath>..\packages\Collector.Common.UnitTest.Helpers.3.0.2\lib\net45\Collector.Common.UnitTest.Helpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\Collector.Common.RestClient\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Ploeh.AutoFixture, Version=3.36.11.0, Culture=neutral, PublicKeyToken=b24654c590009d4f, processorArchitecture=MSIL">
-      <HintPath>..\Collector.Common.RestClient\packages\AutoFixture.3.36.11\lib\net40\Ploeh.AutoFixture.dll</HintPath>
+      <HintPath>..\packages\AutoFixture.3.36.11\lib\net40\Ploeh.AutoFixture.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Ploeh.AutoFixture.AutoRhinoMock, Version=3.36.11.0, Culture=neutral, PublicKeyToken=b24654c590009d4f, processorArchitecture=MSIL">
-      <HintPath>..\Collector.Common.RestClient\packages\AutoFixture.AutoRhinoMocks.3.36.11\lib\net40\Ploeh.AutoFixture.AutoRhinoMock.dll</HintPath>
+      <HintPath>..\packages\AutoFixture.AutoRhinoMocks.3.36.11\lib\net40\Ploeh.AutoFixture.AutoRhinoMock.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net452\RestSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Rhino.Mocks, Version=3.6.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
-      <HintPath>..\Collector.Common.RestClient\packages\RhinoMocks.3.6\lib\Rhino.Mocks.dll</HintPath>
+      <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -64,11 +76,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\RestApiClient_Test.cs" />
+    <Compile Include="Fakes\RestClient_Fake.cs" />
+    <Compile Include="Fakes\RestRequest_Fake.cs" />
+    <Compile Include="Fakes\RestSharpClientWrapper_Fake.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Collector.Common.RestClient\Collector.Common.RestClient.csproj">
+      <Project>{5d15908d-91fc-43db-b554-ca54794bbe42}</Project>
+      <Name>Collector.Common.RestClient</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

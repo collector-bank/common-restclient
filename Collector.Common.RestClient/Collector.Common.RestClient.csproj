@@ -30,7 +30,28 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Collector.Common.Jwt, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Collector.Common.Jwt.1.0.3\lib\net45\Collector.Common.Jwt.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Collector.Common.Library, Version=3.6.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Collector.Common.Library.3.6.2.0\lib\net45\Collector.Common.Library.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Collector.Common.RestContracts, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Collector.Common.RestContracts.1.0.9.0\lib\net452\Collector.Common.RestContracts.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net452\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -40,7 +61,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Authorization\Auth0AuthorizationHeaderFactory.cs" />
+    <Compile Include="Interfaces\IAuthorizationHeaderFactory.cs" />
+    <Compile Include="Authorization\RestAuthorizeRequestData.cs" />
+    <Compile Include="Interfaces\IRestAuthorizeRequestData.cs" />
+    <Compile Include="RestApiClient.cs" />
+    <Compile Include="Exceptions\AuthException.cs" />
+    <Compile Include="Exceptions\UnauthorizedException.cs" />
+    <Compile Include="Exceptions\RestApiException.cs" />
+    <Compile Include="Interfaces\IRestApiClient.cs" />
+    <Compile Include="Interfaces\IRestSharpClientWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RestSharpAuthenticator.cs" />
+    <Compile Include="RestSharpClientWrapper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
