@@ -43,16 +43,16 @@ namespace Collector.Common.RestClient.UnitTests.Client
         }
 
         [Test]
-        public void When_authentication_is_provided_it_will_get_authentication_header()
+        public void When_authentication_is_provided_it_will_get_authorization_header()
         { 
-            var authentication = Fixture.Freeze<IAuthorizationHeaderFactory>();
+            var authorizationHeaderFactory = Fixture.Freeze<IAuthorizationHeaderFactory>();
             var restClientWrapper = (RestSharpClientWrapper_Fake)Fixture.Create<IRestSharpClientWrapper>();
 
-            _sut.AuthorizationHeaderFactory = authentication;
+            _sut.AuthorizationHeaderFactory = authorizationHeaderFactory;
             
             restClientWrapper.Authenticator.Authenticate(Fixture.Create<IRestClient>(), Fixture.Create<IRestRequest>());
 
-            authentication.AssertWasCalled(x => x.Get(Arg<IRestAuthorizeRequestData>.Is.Anything));
+            authorizationHeaderFactory.AssertWasCalled(x => x.Get(Arg<IRestAuthorizeRequestData>.Is.Anything));
         }
 
         [Test, ExpectedException(typeof(ValidationException))]
@@ -124,7 +124,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
         }
 
         [Test, ExpectedException(typeof(RestApiException))]
-        public async void When_executing_call_async_and_the_response_has_a_non_success_status_code_it_throws_an_exception()
+        public async void When_executing_call_async_and_the_response_has_does_not_have_2xx_status_code_it_throws_an_exception()
         {
             var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = Fixture.Create<string>() };
 

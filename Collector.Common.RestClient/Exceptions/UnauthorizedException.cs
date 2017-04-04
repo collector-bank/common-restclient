@@ -11,7 +11,7 @@ namespace Collector.Common.RestClient.Exceptions
 {
     public class UnauthorizedException : AuthException
     {
-        private const string ERROR_MESSAGE = "Access denied. Please check again the client id and client secret.";
+        private const string ERROR_MESSAGE = "Access denied. Please validate the client id and/or client secret.";
 
         public UnauthorizedException()
             : base(ERROR_MESSAGE, string.Empty)
