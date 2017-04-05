@@ -67,7 +67,7 @@
   <ItemGroup>
     <Compile Include="RestApiClient.cs" />
     <Compile Include="Authorization\Auth0AuthorizationHeaderFactory.cs" />
-    <Compile Include="BaseBuilder.cs" />
+    <Compile Include="ApiClientBuilder.cs" />
     <Compile Include="Interfaces\IAuthorizationHeaderFactory.cs" />
     <Compile Include="Authorization\RestAuthorizeRequestData.cs" />
     <Compile Include="Interfaces\IRequestApiClient.cs" />
@@ -79,7 +79,6 @@
     <Compile Include="Interfaces\IRestApiClient.cs" />
     <Compile Include="Interfaces\IRestSharpClientWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RestSharpApiClientBuilder.cs" />
     <Compile Include="Implementation\RestSharpAuthenticator.cs" />
     <Compile Include="Implementation\RestSharpClientWrapper.cs" />
   </ItemGroup>
