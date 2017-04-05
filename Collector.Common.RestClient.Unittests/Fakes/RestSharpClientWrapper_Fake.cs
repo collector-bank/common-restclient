@@ -9,14 +9,17 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
     using System;
     using System.Net;
 
+    using Collector.Common.RestClient.Interfaces;
     using Collector.Common.RestContracts;
+
+    using global::RestSharp;
+    using global::RestSharp.Authenticators;
 
     using Newtonsoft.Json;
 
-    using RestSharp;
-    using RestSharp.Authenticators;
+    using Serilog;
 
-    internal class RestSharpClientWrapper_Fake : Interfaces.IRestSharpClientWrapper
+    internal class RestSharpClientWrapper_Fake : IRestSharpClientWrapper
     {
         public IRestRequest LastRequest { get; private set; }
 
@@ -47,5 +50,9 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
 
             return new RestResponse { StatusCode = ExpectedResponseStatusCode, Content = JsonConvert.SerializeObject(response) };
         }
+
+        public IRestClient RestClient { get; set; }
+        public string BaseUrl { get; set; }
+        public ILogger Logger { get; set; }
     }
 }

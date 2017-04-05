@@ -15,12 +15,31 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
     using System.Threading;
     using System.Threading.Tasks;
 
+    using Collector.Common.RestClient.UnitTests.Client;
+    using Collector.Common.RestContracts;
+
+    using Newtonsoft.Json;
+
+    using Ploeh.AutoFixture;
+
     using RestSharp;
     using RestSharp.Authenticators;
     using RestSharp.Deserializers;
 
     public class RestClient_Fake : IRestClient
     {
+        private readonly Fixture _fixture;
+
+        public RestClient_Fake()
+        {
+
+        }
+
+        public RestClient_Fake(Fixture fixture)
+        {
+            _fixture = fixture;
+        }
+
         public CookieContainer CookieContainer { get; set; }
 
         public int? MaxRedirects { get; set; }
@@ -51,10 +70,11 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
 
         public bool FollowRedirects { get; set; }
 
-        public RestRequestAsyncHandle ExecuteAsync(IRestRequest request, Action<IRestResponse, RestRequestAsyncHandle> callback)
+        public virtual RestRequestAsyncHandle ExecuteAsync(IRestRequest request, Action<IRestResponse, RestRequestAsyncHandle> callback)
         {
             throw new NotImplementedException();
         }
+
 
         public RestRequestAsyncHandle ExecuteAsync<T>(IRestRequest request, Action<IRestResponse<T>, RestRequestAsyncHandle> callback)
         {

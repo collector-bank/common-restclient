@@ -9,12 +9,9 @@ namespace Collector.Common.RestClient.Interfaces
     using System;
 
     using RestSharp;
-    using RestSharp.Authenticators;
 
     internal interface IRestSharpClientWrapper
     {
-        IAuthenticator Authenticator { get; set; }
-
         void ExecuteAsync(IRestRequest request, Action<IRestResponse> callback);
     }
 }

@@ -65,6 +65,10 @@
       <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.2.4.0\lib\net45\Serilog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -76,7 +80,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\ApiClient_test.cs" />
     <Compile Include="Client\RestApiClient_Test.cs" />
+    <Compile Include="Fakes\DelegationSink.cs" />
+    <Compile Include="Fakes\FakeRequests.cs" />
     <Compile Include="Fakes\RestClient_Fake.cs" />
     <Compile Include="Fakes\RestRequest_Fake.cs" />
     <Compile Include="Fakes\RestSharpClientWrapper_Fake.cs" />
