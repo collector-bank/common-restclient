@@ -33,7 +33,6 @@ namespace Collector.Common.RestClient
             return this;
         }
 
-
         public ApiClientBuilder UseAuthorizationHeaderFactory(IAuthorizationHeaderFactory authorizationHeaderFactory)
         {
             _authenticator = new RestSharpAuthenticator(authorizationHeaderFactory);
