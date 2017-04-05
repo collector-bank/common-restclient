@@ -69,7 +69,7 @@ namespace Collector.Common.RestClient
         /// <exception cref="ValidationException">Thrown if request is invalid.</exception>
         /// <exception cref="RestApiException">Thrown if response is not OK or contains RestError.</exception>
         public async Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request)
-            where TResourceIdentifier : ResourceIdentifier
+            where TResourceIdentifier : class, IResourceIdentifier
         {
             EnsureRequestObjectIsValid(request);
 
@@ -91,7 +91,7 @@ namespace Collector.Common.RestClient
         /// <exception cref="ValidationException">Thrown if request is invalid.</exception>
         /// <exception cref="RestApiException">Thrown if response is not OK or contains RestError.</exception>
         public async Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request)
-            where TResourceIdentifier : ResourceIdentifier
+            where TResourceIdentifier : class, IResourceIdentifier
         {
             EnsureRequestObjectIsValid(request);
 
@@ -122,7 +122,7 @@ namespace Collector.Common.RestClient
                 restRequest.AddParameter(parameter.Name, parameter.Value, "application/json", ParameterType.GetOrPost);
         }
 
-        private static RestRequest CreateRestRequest<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : ResourceIdentifier
+        private static RestRequest CreateRestRequest<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier
         {
             var restRequest = new RestRequest(request.GetResourceIdentifier().Uri, GetMethod(request.GetHttpMethod()));
 
