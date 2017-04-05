@@ -16,11 +16,6 @@ namespace Collector.Common.RestClient.Interfaces
     public interface IRestApiClient
     {
         /// <summary>
-        /// Set Authorization header factory, that will provide an 'Authorize' header string for authentication
-        /// </summary>
-        IAuthorizationHeaderFactory AuthorizationHeaderFactory { set; }
- 
-        /// <summary>
         /// Invokes the action asynchronously for the specified request. Throws exception if the call is unsuccessful.
         /// </summary>
         /// <param name="request">The request.</param>

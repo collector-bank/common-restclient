@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient
+namespace Collector.Common.RestClient.Implementation
 {
     using System;
 
@@ -15,13 +15,16 @@ namespace Collector.Common.RestClient
 
     internal sealed class RestSharpClientWrapper : IRestSharpClientWrapper
     {
-        public IAuthenticator Authenticator { get; set; }
+        private readonly IRestClient _restClient;
+
+        public RestSharpClientWrapper(IAuthenticator authenticator, string baseUrl)
+        {
+            _restClient = new RestClient(baseUrl) { Authenticator = authenticator };
+        }
 
         public void ExecuteAsync(IRestRequest request, Action<IRestResponse> callback)
         {
-            var client = new RestClient { Authenticator = Authenticator };
-
-            client.ExecuteAsync(request, callback);
+            _restClient.ExecuteAsync(request, callback);
         }
     }
 }
