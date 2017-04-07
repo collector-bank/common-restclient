@@ -34,7 +34,7 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
             return ExecuteRequest(request);
         }
 
-        public void ExecuteAsync(IRestRequest request, string contractIdentifier, Action<IRestResponse> callback)
+        public void ExecuteAsync(IRestRequest request, string contractKey, Action<IRestResponse> callback)
         {
             var response = ExecuteRequest(request);
             

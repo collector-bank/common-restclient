@@ -10,6 +10,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
     using System.Collections.Generic;
     using System.Linq;
 
+    using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Implementation;
     using Collector.Common.RestClient.Interfaces;
     using Collector.Common.UnitTest.Helpers;
@@ -47,6 +48,8 @@ namespace Collector.Common.RestClient.UnitTests.Client
         {
             var baseUrl = _contractBaseUrlMappings.First();
 
+            _sut.InitRestClient(baseUrl.Key);
+
             var builtClient = _sut.RestClients[baseUrl.Key];
 
             Assert.AreEqual(baseUrl.Value, builtClient.BaseUrl.ToString());
@@ -58,6 +61,8 @@ namespace Collector.Common.RestClient.UnitTests.Client
             var baseUrl = _contractBaseUrlMappings.First();
             var authenticator = _authorizationHeaderFactories[baseUrl.Key];
 
+            _sut.InitRestClient(baseUrl.Key);
+
             var builtClient = _sut.RestClients[baseUrl.Key];
 
             Assert.AreEqual(authenticator, ((RestSharpAuthenticator)builtClient.Authenticator).AuthorizationHeaderFactory);
@@ -66,7 +71,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
         [Test]
         public void When_making_a_request_and_the_configured_contract_does_not_exist_exception_is_thrown()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            Assert.Throws<BuildException>(() =>
                                                        {
                                                            _sut.ExecuteAsync(null, Fixture.Create<string>(), null);
                                                        });
@@ -75,14 +80,14 @@ namespace Collector.Common.RestClient.UnitTests.Client
         [Test]
         public void When_making_a_request_and_the_configured_contract_exists_it_will_call_the_rest_client()
         {
-            var restClient = Fixture.Create<IRestClient>();
-            var contract = Fixture.Create<string>();
+            var contractMapping = _contractBaseUrlMappings.First();
+            var fakeClient = Fixture.Create<IRestClient>();
 
-            _sut.RestClients.Add(new KeyValuePair<string, IRestClient>(contract, restClient));
+            _sut.RestClients.AddOrUpdate(contractMapping.Key, fakeClient, (s, client) => fakeClient);
+            
+            _sut.ExecuteAsync(null, contractMapping.Key, null);
 
-            _sut.ExecuteAsync(null, contract, null);
-
-            restClient.AssertWasCalled(x =>
+            _sut.RestClients.First().Value.AssertWasCalled(x =>
             x.ExecuteAsync(Arg<IRestRequest>.Is.Anything, Arg<Action<IRestResponse>>.Is.Anything));
         }
     }

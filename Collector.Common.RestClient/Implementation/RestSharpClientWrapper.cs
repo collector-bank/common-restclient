@@ -7,8 +7,10 @@
 namespace Collector.Common.RestClient.Implementation
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
+    using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Interfaces;
 
     using RestSharp;
@@ -16,44 +18,52 @@ namespace Collector.Common.RestClient.Implementation
 
     internal sealed class RestSharpClientWrapper : IRestSharpClientWrapper
     {
-        internal readonly IDictionary<string, IRestClient> RestClients = new Dictionary<string, IRestClient>();
+        private readonly IDictionary<string, string> _baseUrlMappings;
+        private readonly IDictionary<string, IAuthorizationHeaderFactory> _authorizationHeaderFactories;
+
+        internal readonly ConcurrentDictionary<string, IRestClient> RestClients = new ConcurrentDictionary<string, IRestClient>();
 
         public RestSharpClientWrapper(IDictionary<string, string> baseUrlMappings, IDictionary<string, IAuthorizationHeaderFactory> authorizationHeaderFactories)
         {
-            InitRestClients(baseUrlMappings, authorizationHeaderFactories);
+            _baseUrlMappings = baseUrlMappings;
+            _authorizationHeaderFactories = authorizationHeaderFactories;
         }
 
-        private void InitRestClients(IDictionary<string, string> baseUrlMappings, IDictionary<string, IAuthorizationHeaderFactory> authorizationHeaderFactories)
+        internal void InitRestClient(string contractKey)
         {
-            foreach (var baseUrlMapping in baseUrlMappings)
+            if (!_baseUrlMappings.ContainsKey(contractKey))
             {
-                IAuthenticator authenticator = null;
-
-                if (authorizationHeaderFactories.ContainsKey(baseUrlMapping.Key))
-                {
-                    authenticator = new RestSharpAuthenticator(authorizationHeaderFactories[baseUrlMapping.Key]);
-                }
-
-                var client = new RestClient
-                {
-                    BaseUrl = new Uri(baseUrlMapping.Value),
-                    Authenticator = authenticator
-                };
-
-                RestClients.Add(baseUrlMapping.Key, client);
+                throw new BuildException($"No mapping found for contract identifier : {contractKey}");
             }
+
+            IAuthenticator authenticator = null;
+
+            if (_authorizationHeaderFactories.ContainsKey(contractKey))
+            {
+                authenticator = new RestSharpAuthenticator(_authorizationHeaderFactories[contractKey]);
+            }
+
+            var baseUrl = _baseUrlMappings[contractKey];
+
+            var client = new RestClient
+                         {
+                             BaseUrl = new Uri(baseUrl),
+                             Authenticator = authenticator
+                         };
+
+            RestClients.TryAdd(contractKey, client);
         }
 
-        public void ExecuteAsync(IRestRequest request, string contractIdentifier, Action<IRestResponse> callback)
+        public void ExecuteAsync(IRestRequest request, string contractKey, Action<IRestResponse> callback)
         {
-            IRestClient client;
-
-            if (!RestClients.TryGetValue(contractIdentifier, out client))
+            if (!RestClients.ContainsKey(contractKey))
             {
-                throw new ArgumentOutOfRangeException($"No mapping found for contract identifier : {contractIdentifier}");
+                InitRestClient(contractKey);
             }
 
-            client.ExecuteAsync(request, callback);
+            var restClient = RestClients[contractKey];
+
+            restClient.ExecuteAsync(request, callback);
         }
     }
 }
