@@ -40,11 +40,7 @@ namespace Collector.Common.RestClient
             _logger = logger;
             return this;
         }
-
-        /// <summary>
-        /// Builds a configured IRestApiClient, based on currently configured configurations
-        /// </summary>
-        /// <returns>Fully configured IRestApiClient</returns>
+    
         public IRestApiClient Build()
         {
             var wrapper = new RestSharpClientWrapper(BaseUris, Authenticators);
