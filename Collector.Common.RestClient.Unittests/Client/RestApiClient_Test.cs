@@ -6,129 +6,96 @@
 
 namespace Collector.Common.RestClient.UnitTests.Client
 {
-    using System;
-    using System.Net;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.Linq;
+    using System.Threading.Tasks;
 
-    using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Implementation;
     using Collector.Common.RestClient.Interfaces;
     using Collector.Common.RestClient.UnitTests.Fakes;
-    using Collector.Common.RestContracts;
     using Collector.Common.UnitTest.Helpers;
     using Collector.Common.UnitTest.Helpers.Autofixture;
+    using Collector.Common.UnitTest.Helpers.Extensions;
 
     using NUnit.Framework;
 
     using Ploeh.AutoFixture;
 
-    using RestSharp;
-
     using Rhino.Mocks;
 
+    using Serilog;
+    using Serilog.Events;
+
+    [TestFixture]
     public class RestApiClient_Test : BaseUnitTest<CommonFixture>
     {
-        private RestSharpRequestHandler _sut;
+        private IList<LogEvent> _logEvents;
+
+        private RestApiClient _sut;
+        private IRequestHandler _stub;
 
         protected override void OnTestInitialize()
         {
-            Fixture.Inject<IRestClient>(new RestClient_Fake
-                                        {
-                                            BaseUrl = Fixture.Create<Uri>()
-                                        });
-            Fixture.Inject<IRestRequest>(new RestRequest_Fake());
-            Fixture.Inject<IRestSharpClientWrapper>(new RestSharpClientWrapper_Fake());
+            _stub = Fixture.GetStub<IRequestHandler>();
 
-            _sut = new RestSharpRequestHandler(Fixture.Create<IRestSharpClientWrapper>());                
+            _stub.Stub(x => x.CallAsync(Arg<RequestWithResponse>.Is.Anything)).Return(Task.FromResult(Fixture.Create<string>()));
+            _stub.Stub(x => x.CallAsync(Arg<RequestWithoutResponse>.Is.Anything)).Return(Task.FromResult(Fixture.Create<string>()));
+
+
+            _logEvents = new List<LogEvent>();
+            _sut = new RestApiClient(_stub, new LoggerConfiguration().WriteTo.Sink(new DelegatingSink(_logEvents.Add)).CreateLogger());
+        }
+
+        [Test, ExpectedException(typeof(ValidationException))]
+        public async void When_executing_call_async_and_the_request_is_not_valid_it_throws_an_exception()
+        {
+            var request = new RequestWithResponse(new DummyResourceIdentifier());
+
+            await _sut.CallAsync(request);
+        }
+
+        [Test, ExpectedException(typeof(ValidationException))]
+        public async void When_executing_call_async_and_the_request_without_response_is_not_valid_it_throws_an_exception()
+        {
+            var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = null };
+
+            await _sut.CallAsync(request);
         }
 
         [Test]
-        public void When_authentication_is_provided_it_will_get_authorization_header()
-        { 
-            var authorizationHeaderFactory = Fixture.Freeze<IAuthorizationHeaderFactory>();
-            var restClientWrapper = (RestSharpClientWrapper_Fake)Fixture.Create<IRestSharpClientWrapper>();
-
-            restClientWrapper.Authenticator = new RestSharpAuthenticator(authorizationHeaderFactory);
-
-            restClientWrapper.Authenticator.Authenticate(Fixture.Create<IRestClient>(), Fixture.Create<IRestRequest>());
-
-            authorizationHeaderFactory.AssertWasCalled(x => x.Get(Arg<IRestAuthorizeRequestData>.Is.Anything));
-        }
-
-
-
-        [Test]
-        public async void When_executing_call_async_the_rest_request_has_the_expected_uri()
+        public async void When_executing_call_async_and_the_request_with_response_it_will_log_it()
         {
-            var request = new RequestWithResponse(new DummyResourceIdentifier()) { StringProperty = Fixture.Create<string>() };
-            var restClientWrapper = (RestSharpClientWrapper_Fake)Fixture.Create<IRestSharpClientWrapper>();
+            var request = new RequestWithResponse(new DummyResourceIdentifier())
+            {
+                StringProperty = Fixture.Create<string>()
+            };
 
             await _sut.CallAsync(request);
 
-            var restRequest = restClientWrapper.LastRequest;
+            var anyLogEvents = _logEvents.Count(x => x.Level == LogEventLevel.Information);
 
-            Assert.AreEqual(request.GetResourceIdentifier().Uri, restRequest.Resource);
+            Assert.AreEqual(2, anyLogEvents);
         }
 
         [Test]
-        public async void When_executing_call_async_the_rest_request_has_the_expected_http_method()
+        public async void When_executing_call_async_and_the_request_without_response_it_will_log_it()
         {
-            var request = new RequestWithResponse(new DummyResourceIdentifier()) { StringProperty = Fixture.Create<string>() };
-            var restClientWrapper = (RestSharpClientWrapper_Fake)Fixture.Create<IRestSharpClientWrapper>();
+            var request = new RequestWithoutResponse(new DummyResourceIdentifier())
+            {
+                StringProperty = Fixture.Create<string>()
+            };
 
             await _sut.CallAsync(request);
 
-            var restRequest = restClientWrapper.LastRequest;
+            var anyLogEvents = _logEvents.Count(x => x.Level == LogEventLevel.Information);
 
-            Assert.AreEqual(Method.POST, restRequest.Method);
+            Assert.AreEqual(1, anyLogEvents);
         }
 
-      
-        [Test]
-        public async void When_executing_call_async_the_rest_request_without_response_has_the_expected_uri()
+        protected override void OnTestFinalize()
         {
-            var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = Fixture.Create<string>() };
-            var restClientWrapper = (RestSharpClientWrapper_Fake)Fixture.Create<IRestSharpClientWrapper>();
-
-            await _sut.CallAsync(request);
-
-            var restRequest = restClientWrapper.LastRequest;
-
-            Assert.AreEqual(request.GetResourceIdentifier().Uri, restRequest.Resource);
-        }
-
-        [Test]
-        public async void When_executing_call_async_the_rest_request_without_response_has_the_expected_http_method()
-        {
-            var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = Fixture.Create<string>() };
-            var restClientWrapper = (RestSharpClientWrapper_Fake)Fixture.Create<IRestSharpClientWrapper>();
-
-            await _sut.CallAsync(request);
-
-            var restRequest = restClientWrapper.LastRequest;
-
-            Assert.AreEqual(Method.POST, restRequest.Method);
-        }
-
-        [Test, ExpectedException(typeof(RestApiException))]
-        public async void When_executing_call_async_and_the_response_has_does_not_indicate_2xx_status_code_it_throws_an_exception()
-        {
-            var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = Fixture.Create<string>() };
-
-            var restClientWrapper = (RestSharpClientWrapper_Fake)Fixture.Create<IRestSharpClientWrapper>();
-            restClientWrapper.ExpectedResponseStatusCode = HttpStatusCode.BadRequest;
-
-            await _sut.CallAsync(request);
-        }
-
-        [Test, ExpectedException(typeof(RestApiException))]
-        public async void When_executing_call_async_and_the_response_has_an_error_it_throws_an_exception()
-        {
-            var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = Fixture.Create<string>() };
-
-            var restClientWrapper = (RestSharpClientWrapper_Fake)Fixture.Create<IRestSharpClientWrapper>();
-            restClientWrapper.ExpectedError = new Error("401", "Bad Request", new[] { new ErrorInfo("OrderNotFoundException", "Order not found."), });
-
-            await _sut.CallAsync(request);
+            _logEvents.Clear();
         }
     }
 }

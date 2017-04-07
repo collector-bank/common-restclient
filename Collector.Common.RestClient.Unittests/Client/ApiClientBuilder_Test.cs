@@ -23,7 +23,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
     using Rhino.Mocks;
 
     [TestFixture]
-    public class Builder_Test : BaseUnitTest<CommonFixture>
+    public class ApiClientBuilder_Test : BaseUnitTest<CommonFixture,ApiClientBuilder>
     {
         [Test]
         public void When_api_builder_is_configured_with_contract_it_will_contain_the_contract()
@@ -100,7 +100,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
         {
             Assert.Throws<BuildException>(() =>
                                           {
-                                              new ApiClientBuilder().ConfigureContractByKey(Fixture.Create<string>(), Fixture.Create<string>()).Build();
+                                              SUT.ConfigureContractByKey(Fixture.Create<string>(), Fixture.Create<string>()).Build();
                                           });
         }
 
@@ -109,7 +109,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
         {
             Assert.Throws<BuildException>(() =>
                                           {
-                                              new ApiClientBuilder().ConfigureContractByKey(Fixture.Create<string>(), Fixture.Create<string>()).Build();
+                                              SUT.ConfigureContractByKey(Fixture.Create<string>(), Fixture.Create<string>()).Build();
                                           });
         }
     }

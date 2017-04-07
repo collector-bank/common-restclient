@@ -8,7 +8,6 @@ namespace Collector.Common.RestClient.UnitTests.Client
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Implementation;
@@ -20,52 +19,44 @@ namespace Collector.Common.RestClient.UnitTests.Client
 
     using Ploeh.AutoFixture;
 
-    using RestSharp;
-
-    using Rhino.Mocks;
-
     [TestFixture]
     public class RestSharpClientWrapper_Test : BaseUnitTest<CommonFixture>
     {
-        private IDictionary<string, string> _contractBaseUrlMappings;
-        private IDictionary<string, IAuthorizationHeaderFactory> _authorizationHeaderFactories;
-
         private RestSharpClientWrapper _sut;
+        private Uri _baseUrl;
+        private string _contract;
+        private IAuthorizationHeaderFactory _authorizationHeaderFactory;
 
         protected override void OnTestInitialize()
         {
-            var baseUrl = Fixture.Create<Uri>();
-            var contract = Fixture.Create<string>();
+            _baseUrl = Fixture.Create<Uri>();
+            _contract = Fixture.Create<string>();
+            _authorizationHeaderFactory = Fixture.Create<IAuthorizationHeaderFactory>();
 
-            _contractBaseUrlMappings = new Dictionary<string, string> { { contract, baseUrl.ToString() } };
-            _authorizationHeaderFactories = new Dictionary<string, IAuthorizationHeaderFactory> { { contract, Fixture.Create<IAuthorizationHeaderFactory>() } };
+            var contractBaseUrlMappings = new Dictionary<string, string> { { _contract, _baseUrl.ToString() } };
+            var authorizationHeaderFactories = new Dictionary<string, IAuthorizationHeaderFactory> { { _contract, _authorizationHeaderFactory } };
 
-            _sut = new RestSharpClientWrapper(_contractBaseUrlMappings, _authorizationHeaderFactories);
+            _sut = new RestSharpClientWrapper(contractBaseUrlMappings, authorizationHeaderFactories);
         }
 
         [Test]
         public void When_configuring_with_base_url_it_will_build_a_client_with_correct_base_url()
         {
-            var baseUrl = _contractBaseUrlMappings.First();
+            _sut.InitRestClient(_contract);
 
-            _sut.InitRestClient(baseUrl.Key);
+            var builtClient = _sut.RestClients[_contract];
 
-            var builtClient = _sut.RestClients[baseUrl.Key];
-
-            Assert.AreEqual(baseUrl.Value, builtClient.BaseUrl.ToString());
+            Assert.AreEqual(_baseUrl, builtClient.BaseUrl.ToString());
         }
 
         [Test]
         public void When_configuring_with_base_url_it_will_build_a_client_with_correct_authorization()
         {
-            var baseUrl = _contractBaseUrlMappings.First();
-            var authenticator = _authorizationHeaderFactories[baseUrl.Key];
+            _sut.InitRestClient(_contract);
 
-            _sut.InitRestClient(baseUrl.Key);
+            var builtClient = _sut.RestClients[_contract];
 
-            var builtClient = _sut.RestClients[baseUrl.Key];
-
-            Assert.AreEqual(authenticator, ((RestSharpAuthenticator)builtClient.Authenticator).AuthorizationHeaderFactory);
+            Assert.AreSame(_authorizationHeaderFactory, ((RestSharpAuthenticator)builtClient.Authenticator).AuthorizationHeaderFactory);
         }
 
         [Test]
@@ -75,20 +66,6 @@ namespace Collector.Common.RestClient.UnitTests.Client
                                                        {
                                                            _sut.ExecuteAsync(null, Fixture.Create<string>(), null);
                                                        });
-        }
-
-        [Test]
-        public void When_making_a_request_and_the_configured_contract_exists_it_will_call_the_rest_client()
-        {
-            var contractMapping = _contractBaseUrlMappings.First();
-            var fakeClient = Fixture.Create<IRestClient>();
-
-            _sut.RestClients.AddOrUpdate(contractMapping.Key, fakeClient, (s, client) => fakeClient);
-            
-            _sut.ExecuteAsync(null, contractMapping.Key, null);
-
-            _sut.RestClients.First().Value.AssertWasCalled(x =>
-            x.ExecuteAsync(Arg<IRestRequest>.Is.Anything, Arg<Action<IRestResponse>>.Is.Anything));
         }
     }
 }
