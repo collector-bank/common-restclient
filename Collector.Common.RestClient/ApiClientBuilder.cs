@@ -6,6 +6,8 @@
 
 namespace Collector.Common.RestClient
 {
+    using System.Collections.Generic;
+
     using Collector.Common.RestClient.Implementation;
     using Collector.Common.RestClient.Interfaces;
 
@@ -13,39 +15,43 @@ namespace Collector.Common.RestClient
 
     using Serilog;
 
-    public class ApiClientBuilder
+    public class ApiClientBuilder : IApiClientBuilder
     {
-        private string _baseUrl;
+        internal readonly IDictionary<string, string> BaseUris = new Dictionary<string, string>();
+
+        internal readonly IDictionary<string, IAuthenticator> Authenticators = new Dictionary<string, IAuthenticator>();
 
         private ILogger _logger;
+       
+        public IApiClientBuilder ConfigureContractByKey(string contractKey, string baseUrl, IAuthorizationHeaderFactory authorizationHeaderFactory = null)
+        {
+            BaseUris.Add(contractKey, baseUrl);
 
-        private IAuthenticator _authenticator;
+            if (authorizationHeaderFactory != null)
+            {
+                Authenticators.Add(contractKey, new RestSharpAuthenticator(authorizationHeaderFactory));
+            }
 
-        public ApiClientBuilder UseLogging(ILogger logger)
+            return this;
+        }
+
+        public IApiClientBuilder ConfigureLogging(ILogger logger)
         {
             _logger = logger;
             return this;
         }
 
-        public ApiClientBuilder UseBaseUrl(string baseUrl)
-        {
-            _baseUrl = baseUrl;
-            return this;
-        }
-
-        public ApiClientBuilder UseAuthorizationHeaderFactory(IAuthorizationHeaderFactory authorizationHeaderFactory)
-        {
-            _authenticator = new RestSharpAuthenticator(authorizationHeaderFactory);
-            return this;
-        }
-
+        /// <summary>
+        /// Builds a configured IRestApiClient, based on currently configured configurations
+        /// </summary>
+        /// <returns>Fully configured IRestApiClient</returns>
         public IRestApiClient Build()
         {
-            var wrapper = new RestSharpClientWrapper(_authenticator, _baseUrl);
+            var wrapper = new RestSharpClientWrapper(BaseUris, Authenticators);
 
-            var restSharpClient = new RestSharpApiRequestApiClient(wrapper);
+            var restSharpRequestHandler = new RestSharpRequestHandler(wrapper);
 
-            return new RestApiClient(restSharpClient, _logger);
+            return new RestApiClient(restSharpRequestHandler, _logger);
         }
     }
 }

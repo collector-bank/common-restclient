@@ -11,6 +11,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
     using System.Linq;
     using System.Threading.Tasks;
 
+    using Collector.Common.RestClient.Implementation;
     using Collector.Common.RestClient.Interfaces;
     using Collector.Common.RestClient.UnitTests.Fakes;
     using Collector.Common.UnitTest.Helpers;
@@ -32,11 +33,11 @@ namespace Collector.Common.RestClient.UnitTests.Client
         private IList<LogEvent> _logEvents;
 
         private RestApiClient _sut;
-        private IRequestApiClient _stub;
+        private IRequestHandler _stub;
 
         protected override void OnTestInitialize()
         {
-            _stub = Fixture.GetStub<IRequestApiClient>();
+            _stub = Fixture.GetStub<IRequestHandler>();
 
             _stub.Stub(x => x.CallAsync(Arg<RequestWithResponse>.Is.Anything)).Return(Task.FromResult(Fixture.Create<string>()));
             _stub.Stub(x => x.CallAsync(Arg<RequestWithoutResponse>.Is.Anything)).Return(Task.FromResult(Fixture.Create<string>()));

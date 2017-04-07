@@ -34,8 +34,9 @@
       <HintPath>..\Collector.Common.RestClient\packages\Collector.Common.Library.3.2.6.0\lib\net45\Collector.Common.Library.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Collector.Common.RestContracts">
-      <HintPath>..\packages\Collector.Common.RestContracts.1.0.9.0\lib\net452\Collector.Common.RestContracts.dll</HintPath>
+    <Reference Include="Collector.Common.RestContracts, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Collector.Common.RestContracts.2.0.0\lib\net452\Collector.Common.RestContracts.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Collector.Common.UnitTest.Helpers, Version=3.0.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Collector.Common.UnitTest.Helpers.3.0.2\lib\net45\Collector.Common.UnitTest.Helpers.dll</HintPath>
@@ -81,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\ApiClient_test.cs" />
+    <Compile Include="Client\Builder_Test.cs" />
     <Compile Include="Client\RestApiClient_Test.cs" />
     <Compile Include="Fakes\DelegationSink.cs" />
     <Compile Include="Fakes\FakeRequests.cs" />

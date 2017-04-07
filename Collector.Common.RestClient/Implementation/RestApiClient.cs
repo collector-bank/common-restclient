@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient
+namespace Collector.Common.RestClient.Implementation
 {
     using System.Threading.Tasks;
 
@@ -17,12 +17,12 @@ namespace Collector.Common.RestClient
 
     internal class RestApiClient : IRestApiClient
     {
-        private readonly IRequestApiClient _requestApiClient;
+        private readonly IRequestHandler _requestHandler;
         private readonly ILogger _logger;
 
-        internal RestApiClient(IRequestApiClient requestApiClient, ILogger logger)
+        internal RestApiClient(IRequestHandler requestHandler, ILogger logger)
         {
-            _requestApiClient = requestApiClient;
+            _requestHandler = requestHandler;
             _logger = logger?.ForContext<RestApiClient>();
         }
 
@@ -30,14 +30,14 @@ namespace Collector.Common.RestClient
         {
             LogRequest(request);
             EnsureRequestObjectIsValid(request);
-            return _requestApiClient.CallAsync(request);
+            return _requestHandler.CallAsync(request);
         }
 
         public async Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request) where TResourceIdentifier : class, IResourceIdentifier
         {
             LogRequest(request);
             EnsureRequestObjectIsValid(request);
-            var response = await _requestApiClient.CallAsync(request);
+            var response = await _requestHandler.CallAsync(request);
 
             _logger?.Information("CallAsync response {@ResponseType}", response.GetType());
             return response;

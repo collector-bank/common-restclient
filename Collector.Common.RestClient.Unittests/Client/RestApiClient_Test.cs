@@ -27,7 +27,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
 
     public class RestApiClient_Test : BaseUnitTest<CommonFixture>
     {
-        private RestSharpApiRequestApiClient _sut;
+        private RestSharpRequestHandler _sut;
 
         protected override void OnTestInitialize()
         {
@@ -38,7 +38,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
             Fixture.Inject<IRestRequest>(new RestRequest_Fake());
             Fixture.Inject<IRestSharpClientWrapper>(new RestSharpClientWrapper_Fake());
 
-            _sut = new RestSharpApiRequestApiClient(Fixture.Create<IRestSharpClientWrapper>());                
+            _sut = new RestSharpRequestHandler(Fixture.Create<IRestSharpClientWrapper>());                
         }
 
         [Test]

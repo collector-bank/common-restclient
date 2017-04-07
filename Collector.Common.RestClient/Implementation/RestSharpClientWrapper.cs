@@ -7,6 +7,7 @@
 namespace Collector.Common.RestClient.Implementation
 {
     using System;
+    using System.Collections.Generic;
 
     using Collector.Common.RestClient.Interfaces;
 
@@ -14,17 +15,36 @@ namespace Collector.Common.RestClient.Implementation
     using RestSharp.Authenticators;
 
     internal sealed class RestSharpClientWrapper : IRestSharpClientWrapper
-    {
-        private readonly IRestClient _restClient;
+    { 
+        private readonly IDictionary<string, string> _baseUrls;
 
-        public RestSharpClientWrapper(IAuthenticator authenticator, string baseUrl)
+        private readonly IDictionary<string, IAuthenticator> _authenticators;
+
+        public RestSharpClientWrapper(IDictionary<string, string> baseUrls, IDictionary<string, IAuthenticator> authenticators)
         {
-            _restClient = new RestClient(baseUrl) { Authenticator = authenticator };
+            _baseUrls = baseUrls;
+            _authenticators = authenticators;
         }
 
-        public void ExecuteAsync(IRestRequest request, Action<IRestResponse> callback)
+        public void ExecuteAsync(IRestRequest request, string contractIdentifier, Action<IRestResponse> callback)
         {
-            _restClient.ExecuteAsync(request, callback);
+            string baseUrl;
+
+            if (!_baseUrls.TryGetValue(contractIdentifier, out baseUrl))
+            {
+                throw new ArgumentOutOfRangeException($"No mapping found for contract identifier : {contractIdentifier}");
+            }
+
+            IAuthenticator authenticator;
+
+            _authenticators.TryGetValue(contractIdentifier, out authenticator);
+
+            var restClient = new RestClient(baseUrl)
+            {
+                Authenticator = authenticator
+            };
+
+            restClient.ExecuteAsync(request, callback);
         }
     }
 }

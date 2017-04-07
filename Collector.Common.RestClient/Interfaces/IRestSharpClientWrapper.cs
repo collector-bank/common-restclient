@@ -12,6 +12,6 @@ namespace Collector.Common.RestClient.Interfaces
 
     internal interface IRestSharpClientWrapper
     {
-        void ExecuteAsync(IRestRequest request, Action<IRestResponse> callback);
+        void ExecuteAsync(IRestRequest request, string contractIdentifier, Action<IRestResponse> callback);
     }
 }

@@ -34,7 +34,7 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
             return ExecuteRequest(request);
         }
 
-        public void ExecuteAsync(IRestRequest request, Action<IRestResponse> callback)
+        public void ExecuteAsync(IRestRequest request, string contractIdentifier, Action<IRestResponse> callback)
         {
             var response = ExecuteRequest(request);
             
@@ -50,9 +50,5 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
 
             return new RestResponse { StatusCode = ExpectedResponseStatusCode, Content = JsonConvert.SerializeObject(response) };
         }
-
-        public IRestClient RestClient { get; set; }
-        public string BaseUrl { get; set; }
-        public ILogger Logger { get; set; }
     }
 }
