@@ -17,10 +17,16 @@ namespace Collector.Common.RestClient
         /// </summary>
         /// <param name="contractKey">The key which identifies requests for contracts</param>
         /// <param name="baseUrl">Api base url</param>
-        /// <param name="authorizationHeaderFactory">Authorization header factory creating the Authorization header string</param>
+        /// <param name="authorizationHeaderFactory">(optional) Authorization header factory creating the Authorization header for the request</param>
         /// <returns></returns>
         IApiClientBuilder ConfigureContractByKey(string contractKey, string baseUrl, IAuthorizationHeaderFactory authorizationHeaderFactory = null);
 
+        /// <summary>
+        /// Using RestSharp client as the request provider
+        /// </summary>
+        /// <returns></returns>
+        IApiClientBuilder UseRestSharp();
+        
         /// <summary>
         /// Configures serilog for all requests made by the IRestApiClient that's beeing built
         /// </summary>
