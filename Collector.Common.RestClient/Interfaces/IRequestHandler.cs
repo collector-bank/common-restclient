@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IRequestApiClient.cs" company="Collector AB">
+// <copyright file="IRequestHandler.cs" company="Collector AB">
 //   Copyright © Collector AB. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ namespace Collector.Common.RestClient.Interfaces
     using Collector.Common.RestContracts;
     using Collector.Common.RestContracts.Interfaces;
 
-    public interface IRequestApiClient
+    public interface IRequestHandler
     {
         Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request)
             where TResourceIdentifier : class, IResourceIdentifier;

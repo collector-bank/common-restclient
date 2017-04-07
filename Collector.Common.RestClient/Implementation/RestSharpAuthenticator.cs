@@ -16,11 +16,11 @@ namespace Collector.Common.RestClient.Implementation
 
     internal class RestSharpAuthenticator : IAuthenticator
     {
-        private readonly IAuthorizationHeaderFactory _authorizationHeaderFactory;
+        internal readonly IAuthorizationHeaderFactory AuthorizationHeaderFactory;
 
         public RestSharpAuthenticator(IAuthorizationHeaderFactory authorizationHeaderFactory)
         {
-            _authorizationHeaderFactory = authorizationHeaderFactory;
+            AuthorizationHeaderFactory = authorizationHeaderFactory;
         }
 
         public void Authenticate(IRestClient client, IRestRequest request)
@@ -29,7 +29,7 @@ namespace Collector.Common.RestClient.Implementation
 
             var httpRequestData = new RestAuthorizeRequestData(body, client.BuildUri(request), request.Method);
 
-            var authorizationHeaderValue = _authorizationHeaderFactory.Get(httpRequestData);
+            var authorizationHeaderValue = AuthorizationHeaderFactory.Get(httpRequestData);
 
             request.AddParameter("Authorization", authorizationHeaderValue, ParameterType.HttpHeader);
         }

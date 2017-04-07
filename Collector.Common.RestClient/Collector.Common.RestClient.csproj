@@ -38,8 +38,8 @@
       <HintPath>..\packages\Collector.Common.Library.3.6.2.0\lib\net45\Collector.Common.Library.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Collector.Common.RestContracts, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Collector.Common.RestContracts.1.0.9.0\lib\net452\Collector.Common.RestContracts.dll</HintPath>
+    <Reference Include="Collector.Common.RestContracts, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Collector.Common.RestContracts.2.0.0\lib\net452\Collector.Common.RestContracts.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -65,14 +65,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RestApiClient.cs" />
+    <Compile Include="Exceptions\BuildException.cs" />
+    <Compile Include="IApiClientBuilder.cs" />
+    <Compile Include="Implementation\RestApiClient.cs" />
     <Compile Include="Authorization\Auth0AuthorizationHeaderFactory.cs" />
     <Compile Include="ApiClientBuilder.cs" />
     <Compile Include="Interfaces\IAuthorizationHeaderFactory.cs" />
     <Compile Include="Authorization\RestAuthorizeRequestData.cs" />
-    <Compile Include="Interfaces\IRequestApiClient.cs" />
+    <Compile Include="Interfaces\IRequestHandler.cs" />
     <Compile Include="Interfaces\IRestAuthorizeRequestData.cs" />
-    <Compile Include="Implementation\RestSharpApiRequestApiClient.cs" />
+    <Compile Include="Implementation\RestSharpRequestHandler.cs" />
     <Compile Include="Exceptions\AuthException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Exceptions\RestApiException.cs" />
@@ -83,7 +85,9 @@
     <Compile Include="Implementation\RestSharpClientWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

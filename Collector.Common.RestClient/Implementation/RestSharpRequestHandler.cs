@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="RestSharpApiRequestApiClient.cs" company="Collector AB">
+// <copyright file="RestSharpRequestHandler.cs" company="Collector AB">
 //   Copyright © Collector AB. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -23,17 +23,17 @@ namespace Collector.Common.RestClient.Implementation
 
     /// <summary>
     /// </summary>
-    internal class RestSharpApiRequestApiClient : IRequestApiClient
+    internal class RestSharpRequestHandler : IRequestHandler
     {
         private const string NULL_RESPONSE = "NULL_RESPONSE";
 
         private readonly IRestSharpClientWrapper _client;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RestSharpApiRequestApiClient"/> class.
+        /// Initializes a new instance of the <see cref="RestSharpRequestHandler"/> class.
         /// </summary>
         /// <param name="client">The rest client wrapper.</param>
-        internal RestSharpApiRequestApiClient(IRestSharpClientWrapper client)
+        internal RestSharpRequestHandler(IRestSharpClientWrapper client)
         {
             _client = client;
         }
@@ -53,7 +53,7 @@ namespace Collector.Common.RestClient.Implementation
         {
             var restRequest = CreateRestRequest(request);
 
-            await GetResponseAsync<object>(restRequest);
+            await GetResponseAsync<object>(restRequest, request.GetConfigurationKey());
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Collector.Common.RestClient.Implementation
         {
             var restRequest = CreateRestRequest(request);
 
-            return await GetResponseAsync<TResponse>(restRequest);
+            return await GetResponseAsync<TResponse>(restRequest, request.GetConfigurationKey());
         }
 
         private static void AddParametersFromRequest(IRestRequest restRequest, object request)
@@ -112,12 +112,13 @@ namespace Collector.Common.RestClient.Implementation
             return (Method)Enum.Parse(typeof(Method), method.ToString());
         }
 
-        private Task<TResponse> GetResponseAsync<TResponse>(IRestRequest restRequest)
+        private Task<TResponse> GetResponseAsync<TResponse>(IRestRequest restRequest, string contractIdentifier)
         {
             var taskCompletionSource = new TaskCompletionSource<TResponse>();
 
             _client.ExecuteAsync(
                 restRequest,
+                contractIdentifier,
                 response =>
                 {
                     if (!IsSuccessStatusCode(response))

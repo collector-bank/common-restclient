@@ -1,17 +1,20 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IRestSharpClientWrapper.cs" company="Collector AB">
+// <copyright file="BuildException.cs" company="Collector AB">
 //   Copyright © Collector AB. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient.Interfaces
+namespace Collector.Common.RestClient.Exceptions
 {
     using System;
 
-    using RestSharp;
+    using Collector.Common.Library.Retry;
 
-    internal interface IRestSharpClientWrapper
+    public class BuildException : Exception, IRetrySuppressingException
     {
-        void ExecuteAsync(IRestRequest request, string contractKey, Action<IRestResponse> callback);
+        public BuildException(string message)
+            : base(message)
+        {
+        }
     }
 }

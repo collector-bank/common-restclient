@@ -22,6 +22,11 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
         public string StringProperty { get; set; }
 
         public override HttpMethod GetHttpMethod() => HttpMethod.POST;
+
+        public override string GetConfigurationKey()
+        {
+            return "Test";
+        }
     }
 
     public class RequestWithoutResponse : RequestBase<DummyResourceIdentifier>
@@ -35,6 +40,11 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
         public string StringProperty { get; set; } = "StringValue";
 
         public override HttpMethod GetHttpMethod() => HttpMethod.POST;
+
+        public override string GetConfigurationKey()
+        {
+            return "Test";
+        }
     }
 
     public class DummyResourceIdentifier : ResourceIdentifier
