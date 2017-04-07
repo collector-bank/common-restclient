@@ -6,8 +6,10 @@
 
 namespace Collector.Common.RestClient.UnitTests.Client
 {
+    using System;
     using System.Collections.Generic;
 
+    using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Interfaces;
     using Collector.Common.UnitTest.Helpers;
     using Collector.Common.UnitTest.Helpers.Autofixture;
@@ -17,7 +19,6 @@ namespace Collector.Common.RestClient.UnitTests.Client
     using Ploeh.AutoFixture;
 
     using RestSharp;
-    using RestSharp.Authenticators;
 
     using Rhino.Mocks;
 
@@ -48,6 +49,36 @@ namespace Collector.Common.RestClient.UnitTests.Client
             Assert.AreEqual(endpoint, builder.BaseUris[contract]);
         }
 
+
+        [Test]
+        public void When_configure_the_contract_multiple_times_it_will_throw_exception()
+        {
+            var contract = Fixture.Create<string>();
+            var endpoint = Fixture.Create<string>();
+
+
+            Assert.Throws<BuildException>(() =>
+                                          {
+                                              new ApiClientBuilder()
+                                                  .ConfigureContractByKey(contract, endpoint)
+                                                  .ConfigureContractByKey(contract, endpoint);
+                                          });
+
+        }
+
+        [Test]
+        public void When_configure_contract_with_null_it_will_throw_exception()
+        {
+            var endpoint = Fixture.Create<string>();
+
+            Assert.Throws<ArgumentNullException>(() =>
+                                          {
+                                              new ApiClientBuilder()
+                                                  .ConfigureContractByKey(null, endpoint);
+                                          });
+
+        }
+
         [Test]
         public void When_api_builder_is_configured_with_authenticator_it_will_hold_the_authenticator()
         {
@@ -55,14 +86,31 @@ namespace Collector.Common.RestClient.UnitTests.Client
             var endpoint = Fixture.Create<string>();
             var authorizationHeaderFactory = Fixture.Create<IAuthorizationHeaderFactory>();
             Fixture.Create<IRestRequest>().Stub(x => x.Parameters).Return(new List<Parameter>());
+
             var builder = (ApiClientBuilder)new ApiClientBuilder()
                 .ConfigureContractByKey(contract, endpoint, authorizationHeaderFactory);
 
-            var authenticator = builder.Authenticators[contract];
+            var configuredAuthorizationHeaderFactory = builder.Authenticators[contract];
 
-            authenticator.Authenticate(Fixture.Create<IRestClient>(), Fixture.Create<IRestRequest>());
+            Assert.AreSame(configuredAuthorizationHeaderFactory, configuredAuthorizationHeaderFactory);
+        }
 
-            authorizationHeaderFactory.AssertWasCalled(x => x.Get(Arg<IRestAuthorizeRequestData>.Is.Anything));
+        [Test]
+        public void When_building_it_will_throw_exception_if_no_contracts_are_configured()
+        {
+            Assert.Throws<BuildException>(() =>
+                                          {
+                                              new ApiClientBuilder().ConfigureContractByKey(Fixture.Create<string>(), Fixture.Create<string>()).Build();
+                                          });
+        }
+
+        [Test]
+        public void When_building_it_will_throw_exception_if_no_rest_client_is_configured()
+        {
+            Assert.Throws<BuildException>(() =>
+                                          {
+                                              new ApiClientBuilder().ConfigureContractByKey(Fixture.Create<string>(), Fixture.Create<string>()).Build();
+                                          });
         }
     }
 }

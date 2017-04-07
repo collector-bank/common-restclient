@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\BuildException.cs" />
     <Compile Include="IApiClientBuilder.cs" />
     <Compile Include="Implementation\RestApiClient.cs" />
     <Compile Include="Authorization\Auth0AuthorizationHeaderFactory.cs" />

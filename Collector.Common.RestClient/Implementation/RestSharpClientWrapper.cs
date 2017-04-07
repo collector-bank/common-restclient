@@ -15,36 +15,45 @@ namespace Collector.Common.RestClient.Implementation
     using RestSharp.Authenticators;
 
     internal sealed class RestSharpClientWrapper : IRestSharpClientWrapper
-    { 
-        private readonly IDictionary<string, string> _baseUrls;
+    {
+        internal readonly IDictionary<string, IRestClient> RestClients = new Dictionary<string, IRestClient>();
 
-        private readonly IDictionary<string, IAuthenticator> _authenticators;
-
-        public RestSharpClientWrapper(IDictionary<string, string> baseUrls, IDictionary<string, IAuthenticator> authenticators)
+        public RestSharpClientWrapper(IDictionary<string, string> baseUrlMappings, IDictionary<string, IAuthorizationHeaderFactory> authorizationHeaderFactories)
         {
-            _baseUrls = baseUrls;
-            _authenticators = authenticators;
+            InitRestClients(baseUrlMappings, authorizationHeaderFactories);
+        }
+
+        private void InitRestClients(IDictionary<string, string> baseUrlMappings, IDictionary<string, IAuthorizationHeaderFactory> authorizationHeaderFactories)
+        {
+            foreach (var baseUrlMapping in baseUrlMappings)
+            {
+                IAuthenticator authenticator = null;
+
+                if (authorizationHeaderFactories.ContainsKey(baseUrlMapping.Key))
+                {
+                    authenticator = new RestSharpAuthenticator(authorizationHeaderFactories[baseUrlMapping.Key]);
+                }
+
+                var client = new RestClient
+                {
+                    BaseUrl = new Uri(baseUrlMapping.Value),
+                    Authenticator = authenticator
+                };
+
+                RestClients.Add(baseUrlMapping.Key, client);
+            }
         }
 
         public void ExecuteAsync(IRestRequest request, string contractIdentifier, Action<IRestResponse> callback)
         {
-            string baseUrl;
+            IRestClient client;
 
-            if (!_baseUrls.TryGetValue(contractIdentifier, out baseUrl))
+            if (!RestClients.TryGetValue(contractIdentifier, out client))
             {
                 throw new ArgumentOutOfRangeException($"No mapping found for contract identifier : {contractIdentifier}");
             }
 
-            IAuthenticator authenticator;
-
-            _authenticators.TryGetValue(contractIdentifier, out authenticator);
-
-            var restClient = new RestClient(baseUrl)
-            {
-                Authenticator = authenticator
-            };
-
-            restClient.ExecuteAsync(request, callback);
+            client.ExecuteAsync(request, callback);
         }
     }
 }

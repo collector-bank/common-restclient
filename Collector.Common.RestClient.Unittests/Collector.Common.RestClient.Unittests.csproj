@@ -30,8 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Collector.Common.Library, Version=3.2.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\Collector.Common.RestClient\packages\Collector.Common.Library.3.2.6.0\lib\net45\Collector.Common.Library.dll</HintPath>
+    <Reference Include="Collector.Common.Library, Version=3.6.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Collector.Common.Library.3.6.2.0\lib\net45\Collector.Common.Library.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Collector.Common.RestContracts, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -84,6 +84,7 @@
     <Compile Include="Client\ApiClient_test.cs" />
     <Compile Include="Client\Builder_Test.cs" />
     <Compile Include="Client\RestApiClient_Test.cs" />
+    <Compile Include="Client\RestSharpClientWrapper_Test.cs" />
     <Compile Include="Fakes\DelegationSink.cs" />
     <Compile Include="Fakes\FakeRequests.cs" />
     <Compile Include="Fakes\RestClient_Fake.cs" />
@@ -96,12 +97,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Collector.Common.RestClient\Collector.Common.RestClient.csproj">
       <Project>{5d15908d-91fc-43db-b554-ca54794bbe42}</Project>
       <Name>Collector.Common.RestClient</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -6,12 +6,13 @@
 
 namespace Collector.Common.RestClient
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
 
+    using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Implementation;
     using Collector.Common.RestClient.Interfaces;
-
-    using RestSharp.Authenticators;
 
     using Serilog;
 
@@ -19,17 +20,27 @@ namespace Collector.Common.RestClient
     {
         internal readonly IDictionary<string, string> BaseUris = new Dictionary<string, string>();
 
-        internal readonly IDictionary<string, IAuthenticator> Authenticators = new Dictionary<string, IAuthenticator>();
+        internal readonly IDictionary<string, IAuthorizationHeaderFactory> Authenticators = new Dictionary<string, IAuthorizationHeaderFactory>();
 
         private ILogger _logger;
-       
+
+        private IRequestHandler _requestHandler;
+
         public IApiClientBuilder ConfigureContractByKey(string contractKey, string baseUrl, IAuthorizationHeaderFactory authorizationHeaderFactory = null)
         {
+            if (string.IsNullOrEmpty(contractKey))
+                throw new ArgumentNullException(nameof(contractKey));
+
+            if (BaseUris.ContainsKey(contractKey))
+            {
+                throw new BuildException($"{contractKey} has already been configured.");
+            }
+
             BaseUris.Add(contractKey, baseUrl);
 
             if (authorizationHeaderFactory != null)
             {
-                Authenticators.Add(contractKey, new RestSharpAuthenticator(authorizationHeaderFactory));
+                Authenticators.Add(contractKey, authorizationHeaderFactory);
             }
 
             return this;
@@ -40,14 +51,29 @@ namespace Collector.Common.RestClient
             _logger = logger;
             return this;
         }
-    
-        public IRestApiClient Build()
+
+        public IApiClientBuilder UseRestSharp()
         {
             var wrapper = new RestSharpClientWrapper(BaseUris, Authenticators);
 
-            var restSharpRequestHandler = new RestSharpRequestHandler(wrapper);
+            _requestHandler = new RestSharpRequestHandler(wrapper);
 
-            return new RestApiClient(restSharpRequestHandler, _logger);
+            return this;
+        }
+
+        public IRestApiClient Build()
+        {
+            if (!BaseUris.Any())
+            {
+                throw new BuildException("Please configure atleast one base uri");
+            }
+
+            if (_requestHandler == null)
+            {
+                throw new BuildException("Please choose a Rest client type.");
+            }
+
+            return new RestApiClient(_requestHandler, _logger);
         }
     }
 }
