@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Builder_Test.cs" company="Collector AB">
+// <copyright file="ApiClientBuilder_Test.cs" company="Collector AB">
 //   Copyright © Collector AB. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
     using Rhino.Mocks;
 
     [TestFixture]
-    public class ApiClientBuilder_Test : BaseUnitTest<CommonFixture,ApiClientBuilder>
+    public class ApiClientBuilder_Test : BaseUnitTest<CommonFixture, ApiClientBuilder>
     {
         [Test]
         public void When_api_builder_is_configured_with_contract_it_will_contain_the_contract()
@@ -31,7 +31,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
             var contract = Fixture.Create<string>();
             var endpoint = Fixture.Create<string>();
 
-            var builder = (ApiClientBuilder)new ApiClientBuilder()
+            var builder = (ApiClientBuilder)SUT
                 .ConfigureContractByKey(contract, endpoint);
 
             CollectionAssert.Contains(builder.BaseUris.Keys, contract);
@@ -43,7 +43,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
             var contract = Fixture.Create<string>();
             var endpoint = Fixture.Create<string>();
 
-            var builder = (ApiClientBuilder)new ApiClientBuilder()
+            var builder = (ApiClientBuilder)SUT
                 .ConfigureContractByKey(contract, endpoint);
 
             Assert.AreEqual(endpoint, builder.BaseUris[contract]);
@@ -59,11 +59,10 @@ namespace Collector.Common.RestClient.UnitTests.Client
 
             Assert.Throws<BuildException>(() =>
                                           {
-                                              new ApiClientBuilder()
+                                              SUT
                                                   .ConfigureContractByKey(contract, endpoint)
                                                   .ConfigureContractByKey(contract, endpoint);
                                           });
-
         }
 
         [Test]
@@ -73,10 +72,9 @@ namespace Collector.Common.RestClient.UnitTests.Client
 
             Assert.Throws<ArgumentNullException>(() =>
                                           {
-                                              new ApiClientBuilder()
+                                              SUT
                                                   .ConfigureContractByKey(null, endpoint);
                                           });
-
         }
 
         [Test]
@@ -87,7 +85,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
             var authorizationHeaderFactory = Fixture.Create<IAuthorizationHeaderFactory>();
             Fixture.Create<IRestRequest>().Stub(x => x.Parameters).Return(new List<Parameter>());
 
-            var builder = (ApiClientBuilder)new ApiClientBuilder()
+            var builder = (ApiClientBuilder)SUT
                 .ConfigureContractByKey(contract, endpoint, authorizationHeaderFactory);
 
             var configuredAuthorizationHeaderFactory = builder.Authenticators[contract];
