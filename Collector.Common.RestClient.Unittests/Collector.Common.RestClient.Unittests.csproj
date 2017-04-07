@@ -84,7 +84,6 @@
     <Compile Include="Client\RestApiClient_Test.cs" />
     <Compile Include="Client\ApiClientBuilder_Test.cs" />
     <Compile Include="Client\RestSharpRequestHandler_Test.cs" />
-    <Compile Include="Client\RestSharpClientWrapper_Test.cs" />
     <Compile Include="Fakes\DelegationSink.cs" />
     <Compile Include="Fakes\FakeRequests.cs" />
     <Compile Include="Fakes\RestClient_Fake.cs" />
