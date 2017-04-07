@@ -59,8 +59,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
 
             Assert.Throws<BuildException>(() =>
                                           {
-                                              SUT
-                                                  .ConfigureContractByKey(contract, endpoint)
+                                              SUT.ConfigureContractByKey(contract, endpoint)
                                                   .ConfigureContractByKey(contract, endpoint);
                                           });
         }
@@ -72,8 +71,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
 
             Assert.Throws<ArgumentNullException>(() =>
                                           {
-                                              SUT
-                                                  .ConfigureContractByKey(null, endpoint);
+                                              SUT.ConfigureContractByKey(null, endpoint);
                                           });
         }
 
@@ -85,8 +83,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
             var authorizationHeaderFactory = Fixture.Create<IAuthorizationHeaderFactory>();
             Fixture.Create<IRestRequest>().Stub(x => x.Parameters).Return(new List<Parameter>());
 
-            var builder = (ApiClientBuilder)SUT
-                .ConfigureContractByKey(contract, endpoint, authorizationHeaderFactory);
+            var builder = (ApiClientBuilder)SUT.ConfigureContractByKey(contract, endpoint, authorizationHeaderFactory);
 
             var configuredAuthorizationHeaderFactory = builder.Authenticators[contract];
 
