@@ -9,6 +9,7 @@ namespace Collector.Common.RestClient.Implementation
     using System;
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
+    using System.Net;
     using System.Threading.Tasks;
 
     using Collector.Common.Library.Collections;
@@ -121,23 +122,28 @@ namespace Collector.Common.RestClient.Implementation
                 contractIdentifier,
                 response =>
                 {
-                    if (!IsSuccessStatusCode(response))
-                    {
-                        taskCompletionSource.SetException(new RestApiException(message: "Failed with code " + response.StatusCode, errorCode: NULL_RESPONSE));
-                        return;
-                    }
-
                     var result = JsonConvert.DeserializeObject<Response<TResponse>>(response.Content);
 
                     if (result.Error != null)
-                        taskCompletionSource.SetException(new RestApiException(result.Error));
+                    {
+                        taskCompletionSource.SetException(new RestApiException(response.StatusCode, result.Error));
+                    }
+                    else if (!IsSuccessStatusCode(response))
+                    {
+                        taskCompletionSource.SetException(new RestApiException(
+                            httpStatusCode: response.StatusCode,
+                            message: "Failed with code " + response.StatusCode, 
+                            errorCode: NULL_RESPONSE));
+                    }
                     else
+                    {
                         taskCompletionSource.SetResult(result.Data);
+                    }
                 });
 
             return taskCompletionSource.Task;
         }
 
-        public bool IsSuccessStatusCode(IRestResponse response) => ((int)response.StatusCode >= 200) && ((int)response.StatusCode <= 299);
+        public bool IsSuccessStatusCode(IRestResponse response) => (response.StatusCode >= HttpStatusCode.OK) && (response.StatusCode <= (HttpStatusCode)299);
     }
 }
