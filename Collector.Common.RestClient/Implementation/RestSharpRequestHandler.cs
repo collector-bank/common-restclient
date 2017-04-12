@@ -142,12 +142,23 @@ namespace Collector.Common.RestClient.Implementation
                             taskCompletionSource.SetResult(result.Data);
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         taskCompletionSource.SetException(new RestApiException(
                              httpStatusCode: response.StatusCode,
-                             message: "Failed with code " + response.StatusCode,
-                             errorCode: NULL_RESPONSE));
+                             restError: new Error
+                             {
+                                 Message = "Failed to deserialize message.",
+                                 Code = response.StatusCode.ToString(),
+                                 Errors = new[]
+                                          {
+                                              new ErrorInfo
+                                              {
+                                                Reason   = ex.GetType().Name,
+                                                Message = ex.Message
+                                              } 
+                                          }
+                             }));
                     }
                 });
 
