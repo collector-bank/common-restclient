@@ -14,9 +14,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Collector.Common.RestClient")]
 [assembly: AssemblyDescription("Rest API client to use with RestContracts")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Collector")]
+[assembly: AssemblyCompany("Collector Bank AB")]
 [assembly: AssemblyProduct("Collector.Common.RestClient")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCopyright("Copyright © 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -38,8 +38,8 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
+[assembly: AssemblyVersion("2.0.1.0")]
+[assembly: AssemblyFileVersion("2.0.1.0")]
 
 // Enable unit-testing of internal classes
 [assembly: InternalsVisibleTo("Collector.Common.RestClient.UnitTests")]
