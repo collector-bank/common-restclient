@@ -122,22 +122,32 @@ namespace Collector.Common.RestClient.Implementation
                 contractIdentifier,
                 response =>
                 {
-                    var result = JsonConvert.DeserializeObject<Response<TResponse>>(response.Content);
-
-                    if (result.Error != null)
+                    try
                     {
-                        taskCompletionSource.SetException(new RestApiException(response.StatusCode, result.Error));
+                        var result = JsonConvert.DeserializeObject<Response<TResponse>>(response.Content);
+
+                        if (result.Error != null)
+                        {
+                            taskCompletionSource.SetException(new RestApiException(response.StatusCode, result.Error));
+                        }
+                        else if (!IsSuccessStatusCode(response))
+                        {
+                            taskCompletionSource.SetException(new RestApiException(
+                                httpStatusCode: response.StatusCode,
+                                message: "Failed with code " + response.StatusCode,
+                                errorCode: NULL_RESPONSE));
+                        }
+                        else
+                        {
+                            taskCompletionSource.SetResult(result.Data);
+                        }
                     }
-                    else if (!IsSuccessStatusCode(response))
+                    catch (Exception)
                     {
                         taskCompletionSource.SetException(new RestApiException(
-                            httpStatusCode: response.StatusCode,
-                            message: "Failed with code " + response.StatusCode, 
-                            errorCode: NULL_RESPONSE));
-                    }
-                    else
-                    {
-                        taskCompletionSource.SetResult(result.Data);
+                             httpStatusCode: response.StatusCode,
+                             message: "Failed with code " + response.StatusCode,
+                             errorCode: NULL_RESPONSE));
                     }
                 });
 
