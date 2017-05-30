@@ -34,8 +34,8 @@
       <HintPath>..\packages\Collector.Common.Library.3.6.2.0\lib\net45\Collector.Common.Library.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Collector.Common.RestContracts, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Collector.Common.RestContracts.2.0.0\lib\net452\Collector.Common.RestContracts.dll</HintPath>
+    <Reference Include="Collector.Common.RestContracts, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Collector.Common.RestContracts.3.0.0\lib\net452\Collector.Common.RestContracts.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Collector.Common.UnitTest.Helpers, Version=3.0.2.0, Culture=neutral, processorArchitecture=MSIL">
