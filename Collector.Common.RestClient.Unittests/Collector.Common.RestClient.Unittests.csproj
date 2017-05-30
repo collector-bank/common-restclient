@@ -30,8 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Collector.Common.Library, Version=3.6.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Collector.Common.Library.3.6.2.0\lib\net45\Collector.Common.Library.dll</HintPath>
+    <Reference Include="Collector.Common.Library, Version=6.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Collector.Common.Library.6.0.2\lib\net45\Collector.Common.Library.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Collector.Common.RestContracts, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
