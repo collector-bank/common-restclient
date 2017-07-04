@@ -18,18 +18,14 @@ namespace Collector.Common.RestClient.Exceptions
     /// </summary>
     public class RestApiException : Exception
     {
-        private readonly string _errorCode;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="RestApiException"/> class.
         /// </summary>
         /// <param name="httpStatusCode"></param>
         /// <param name="message">The message.</param>
-        /// <param name="errorCode">The error code.</param>
-        internal RestApiException(HttpStatusCode httpStatusCode, string message, string errorCode)
+        internal RestApiException(HttpStatusCode httpStatusCode, string message)
             : base(message: message)
         {
-            _errorCode = errorCode;
             HttpStatusCode = httpStatusCode;
         }
 
@@ -39,22 +35,14 @@ namespace Collector.Common.RestClient.Exceptions
         /// <param name="httpStatusCode"></param>
         /// <param name="restError">The rest error.</param>
         internal RestApiException(HttpStatusCode httpStatusCode, Error restError)
-            : base(message: restError.Message, innerException: null)
+            : base(message: restError.Message)
         {
-            _errorCode = restError.Code;
             HttpStatusCode = httpStatusCode;
-            Errors = restError.Errors;
+            Error = restError;
         }
-
-        /// <summary>
-        /// The error code.
-        /// </summary>
-        public string ErrorCode => _errorCode ?? Message;
-
-        public string Reason => Errors?.First()?.Reason;
 
         public HttpStatusCode HttpStatusCode { get; }
 
-        public IEnumerable<ErrorInfo> Errors { get; }
+        public Error Error { get; }
     }
 }

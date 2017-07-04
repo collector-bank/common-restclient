@@ -6,9 +6,9 @@
 
 namespace Collector.Common.RestClient.Authorization
 {
+    using System;
     using System.Net;
 
-    using Collector.Common.Jwt;
     using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Interfaces;
 
@@ -29,45 +29,45 @@ namespace Collector.Common.RestClient.Authorization
         private const string URL_COLLECTOR_AUTH0 = "https://collectorbank.eu.auth0.com/oauth/token";
         private readonly string _clientId;
         private readonly string _clientSecret;
-        private readonly string _apiIdentifier;
+        private readonly string _audience;
         private string _token;
+        private DateTimeOffset _expiration;
+        private string _tokenType;
 
-        public Auth0AuthorizationHeaderFactory(string clientId, string clientSecret, string apiIdentifier)
+        public Auth0AuthorizationHeaderFactory(string clientId, string clientSecret, string audience)
         {
             _clientId = clientId;
             _clientSecret = clientSecret;
 
-            _apiIdentifier = apiIdentifier;
+            _audience = audience;
 
-            if (_apiIdentifier.EndsWith("/"))
+            if (_audience.EndsWith("/"))
             {
-                _apiIdentifier = _apiIdentifier.Remove(_apiIdentifier.Length - 1);
+                _audience = _audience.Remove(_audience.Length - 1);
             }
         }
 
         public string Get(IRestAuthorizeRequestData restAuthorizeRequestData)
         {
-            var token = GetJwtToken();
-            return $"Bearer {token}";
+            var token = GetToken();
+            return $"{_tokenType} {token}";
         }
 
-        private string GetJwtToken()
+        private string GetToken()
         {
-            if (HasExpired())
-            {
-                _token = GetNewJwtToken();
-            }
+            if (DateTimeOffset.UtcNow > _expiration)
+                GetNewToken();
 
             return _token;
         }
 
-        private string GetNewJwtToken()
+        private void GetNewToken()
         {
             var client = new RestClient(URL_COLLECTOR_AUTH0);
             var request = new RestRequest(Method.POST);
             request.AddHeader(HEADER_CONTENT_TYPE, APP_JSON);
 
-            var paramJsonValue = string.Format(REQUEST_BODY, _clientId, _clientSecret, _apiIdentifier);
+            var paramJsonValue = string.Format(REQUEST_BODY, _clientId, _clientSecret, _audience);
             request.AddParameter(APP_JSON, paramJsonValue, ParameterType.RequestBody);
             var auth0Response = client.Execute(request);
 
@@ -83,8 +83,10 @@ namespace Collector.Common.RestClient.Authorization
 
             try
             {
-                dynamic data = JsonConvert.DeserializeObject(auth0Response.Content);
-                return data.access_token.ToString();
+                var data = JsonConvert.DeserializeObject<OauthTokenResponse>(auth0Response.Content);
+                _token = data.access_token;
+                _expiration = DateTimeOffset.UtcNow.AddSeconds(data.expires_in - 10);
+                _tokenType = data.token_type;
             }
             catch
             {
@@ -92,9 +94,11 @@ namespace Collector.Common.RestClient.Authorization
             }
         }
 
-        private bool HasExpired()
+        private class OauthTokenResponse
         {
-            return string.IsNullOrWhiteSpace(_token) || JwtExpirationValidator.HasExpired(_token);
+            public string access_token { get; set; }
+            public int expires_in { get; set; }
+            public string token_type { get; set; }
         }
     }
 }

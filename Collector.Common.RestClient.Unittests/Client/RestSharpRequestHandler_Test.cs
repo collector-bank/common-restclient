@@ -13,7 +13,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
-
+    
     using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Implementation;
     using Collector.Common.RestClient.Interfaces;
@@ -135,7 +135,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
         }
 
         [Test]
-        public void When_executing_call_async_and_the_response_has_an_error_it_throws_an_exception_with_the_correct_message()
+        public void When_executing_call_async_and_the_response_has_an_error_it_throws_an_exception_with_the_correct_error()
         {
             var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = Fixture.Create<string>() };
             var expectedError = Fixture.Create<Error>();
@@ -144,21 +144,10 @@ namespace Collector.Common.RestClient.UnitTests.Client
 
             var exception = Assert.Throws<RestApiException>(async () => await _sut.CallAsync(request));
 
-            Assert.AreEqual(expectedError.Code, exception.ErrorCode);
-            Assert.AreEqual(expectedError.Errors.First().Reason, exception.Reason);
-        }
-
-        [Test]
-        public void When_executing_call_async_and_the_response_has_an_error_it_throws_an_exception_with_the_correct_error_informations()
-        {
-            var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = Fixture.Create<string>() };
-            var expectedError = Fixture.Create<Error>();
-
-            ConfigureRestSharpFakeWrapper(expectedError);
-
-            var exception = Assert.Throws<RestApiException>(async () => await _sut.CallAsync(request));
-
-            Assert.AreNotEqual(expectedError.Errors, exception.Errors);
+            Assert.AreEqual(expectedError.Code, exception.Error.Code);
+            Assert.AreEqual(expectedError.Message, exception.Error.Message);
+            CollectionAssert.AreEqual(expectedError.Errors.Select(e => e.Message), exception.Error.Errors.Select(e => e.Message));
+            CollectionAssert.AreEqual(expectedError.Errors.Select(e => e.Reason), exception.Error.Errors.Select(e => e.Reason));
         }
 
         private void ConfigureRestSharpFakeWrapper(Error error = null, IEnumerable<ErrorInfo> errorInfos = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)

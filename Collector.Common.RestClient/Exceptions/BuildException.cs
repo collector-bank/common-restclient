@@ -8,9 +8,7 @@ namespace Collector.Common.RestClient.Exceptions
 {
     using System;
 
-    using Collector.Common.Library.Retry;
-
-    public class BuildException : Exception, IRetrySuppressingException
+    public class BuildException : Exception
     {
         public BuildException(string message)
             : base(message)

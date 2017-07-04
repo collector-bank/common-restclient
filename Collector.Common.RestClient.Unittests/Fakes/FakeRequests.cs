@@ -6,9 +6,9 @@
 
 namespace Collector.Common.RestClient.UnitTests.Fakes
 {
-    using System.ComponentModel.DataAnnotations;
-
-    using Collector.Common.RestClient.UnitTests.Client;
+    using System.Collections.Generic;
+    using System.Linq;
+    
     using Collector.Common.RestContracts;
 
     public class RequestWithResponse : RequestBase<DummyResourceIdentifier, string>
@@ -17,8 +17,7 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
             : base(resourceIdentifier)
         {
         }
-
-        [Required]
+        
         public string StringProperty { get; set; }
 
         public override HttpMethod GetHttpMethod() => HttpMethod.POST;
@@ -26,6 +25,14 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
         public override string GetConfigurationKey()
         {
             return "Test";
+        }
+
+        protected override IEnumerable<string> ValidateRequest()
+        {
+            if (StringProperty == null)
+                return new []{ "String property is required"};
+
+            return Enumerable.Empty<string>();
         }
     }
 
@@ -35,8 +42,7 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
             : base(resourceIdentifier)
         {
         }
-
-        [Required]
+        
         public string StringProperty { get; set; } = "StringValue";
 
         public override HttpMethod GetHttpMethod() => HttpMethod.POST;
@@ -44,6 +50,14 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
         public override string GetConfigurationKey()
         {
             return "Test";
+        }
+
+        protected override IEnumerable<string> ValidateRequest()
+        {
+            if (StringProperty == null)
+                return new[] { "String property is required" };
+
+            return Enumerable.Empty<string>();
         }
     }
 

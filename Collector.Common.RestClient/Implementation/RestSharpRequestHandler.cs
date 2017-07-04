@@ -7,12 +7,10 @@
 namespace Collector.Common.RestClient.Implementation
 {
     using System;
-    using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
-
-    using Collector.Common.Library.Collections;
+    
     using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Interfaces;
     using Collector.Common.RestContracts;
@@ -26,8 +24,6 @@ namespace Collector.Common.RestClient.Implementation
     /// </summary>
     internal class RestSharpRequestHandler : IRequestHandler
     {
-        private const string NULL_RESPONSE = "NULL_RESPONSE";
-
         private readonly IRestSharpClientWrapper _client;
 
         /// <summary>
@@ -90,7 +86,7 @@ namespace Collector.Common.RestClient.Implementation
                                     .Where(p => p.GetValue(request, null) != null)
                                     .Where(p => !typeof(IResourceIdentifier).IsAssignableFrom(p.PropertyType))
                                     .Select(p => new { p.Name, Value = p.GetValue(request, null) })
-                                    .ToFixed();
+                                    .ToList();
 
             if (!parameters.Any())
                 return;
@@ -134,8 +130,7 @@ namespace Collector.Common.RestClient.Implementation
                         {
                             taskCompletionSource.SetException(new RestApiException(
                                 httpStatusCode: response.StatusCode,
-                                message: "Failed with code " + response.StatusCode,
-                                errorCode: NULL_RESPONSE));
+                                message: "No response body recieved"));
                         }
                         else
                         {

@@ -34,9 +34,8 @@
       <HintPath>..\packages\Collector.Common.Library.6.0.2\lib\net45\Collector.Common.Library.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Collector.Common.RestContracts, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Collector.Common.RestContracts.3.0.0\lib\net452\Collector.Common.RestContracts.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Collector.Common.RestContracts, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Collector.Common.RestContracts.4.1.0\lib\net452\Collector.Common.RestContracts.dll</HintPath>
     </Reference>
     <Reference Include="Collector.Common.UnitTest.Helpers, Version=3.0.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Collector.Common.UnitTest.Helpers.3.0.2\lib\net45\Collector.Common.UnitTest.Helpers.dll</HintPath>
@@ -71,7 +70,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -93,7 +91,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
