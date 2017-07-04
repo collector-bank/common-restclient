@@ -30,17 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Collector.Common.Jwt, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Collector.Common.Jwt.1.0.3\lib\net45\Collector.Common.Jwt.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Collector.Common.Library, Version=6.0.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Collector.Common.Library.6.0.2\lib\net45\Collector.Common.Library.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Collector.Common.RestContracts, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Collector.Common.RestContracts.3.0.0\lib\net452\Collector.Common.RestContracts.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Collector.Common.RestContracts, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Collector.Common.RestContracts.4.1.0\lib\net452\Collector.Common.RestContracts.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -55,7 +46,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -66,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Exceptions\BuildException.cs" />
+    <Compile Include="Exceptions\ValidationException.cs" />
     <Compile Include="IApiClientBuilder.cs" />
     <Compile Include="Implementation\RestApiClient.cs" />
     <Compile Include="Authorization\Auth0AuthorizationHeaderFactory.cs" />

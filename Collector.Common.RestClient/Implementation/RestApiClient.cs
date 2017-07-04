@@ -6,9 +6,10 @@
 
 namespace Collector.Common.RestClient.Implementation
 {
+    using System.Linq;
     using System.Threading.Tasks;
 
-    using Collector.Common.Library.Validation;
+    using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Interfaces;
     using Collector.Common.RestContracts;
     using Collector.Common.RestContracts.Interfaces;
@@ -48,11 +49,11 @@ namespace Collector.Common.RestClient.Implementation
             _logger?.Information("CallAsync request type {Type} identifier {@Identifier}", request.GetType(), request.GetResourceIdentifier());
         }
 
-        private void EnsureRequestObjectIsValid(object request)
+        private void EnsureRequestObjectIsValid(IRequest request)
         {
-            var exception = AnnotationValidator.Validate(request, AnnotationValidator.ValidationBehaviour.Deep);
-            if (exception != null)
-                throw exception;
+            var errorInfos = request.GetValidationErrors().ToList();
+            if (errorInfos != null && errorInfos.Any())
+                throw new ValidationException(errorInfos);
         }
     }
 }

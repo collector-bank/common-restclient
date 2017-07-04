@@ -6,7 +6,6 @@
 
 namespace Collector.Common.RestClient.Interfaces
 {
-    using System.ComponentModel.DataAnnotations;
     using System.Threading.Tasks;
 
     using Collector.Common.RestClient.Exceptions;

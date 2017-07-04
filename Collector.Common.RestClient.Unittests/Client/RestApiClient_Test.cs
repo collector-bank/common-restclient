@@ -7,10 +7,10 @@
 namespace Collector.Common.RestClient.UnitTests.Client
 {
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using System.Threading.Tasks;
 
+    using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Implementation;
     using Collector.Common.RestClient.Interfaces;
     using Collector.Common.RestClient.UnitTests.Fakes;
