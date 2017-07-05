@@ -47,7 +47,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
             _sut = new RestApiClient(_stub, new LoggerConfiguration().WriteTo.Sink(new DelegatingSink(_logEvents.Add)).CreateLogger());
         }
 
-        [Test, ExpectedException(typeof(ValidationException))]
+        [Test, ExpectedException(typeof(RequestValidationException))]
         public async void When_executing_call_async_and_the_request_is_not_valid_it_throws_an_exception()
         {
             var request = new RequestWithResponse(new DummyResourceIdentifier());
@@ -55,7 +55,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
             await _sut.CallAsync(request);
         }
 
-        [Test, ExpectedException(typeof(ValidationException))]
+        [Test, ExpectedException(typeof(RequestValidationException))]
         public async void When_executing_call_async_and_the_request_without_response_is_not_valid_it_throws_an_exception()
         {
             var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = null };

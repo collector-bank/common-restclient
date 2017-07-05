@@ -56,7 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Exceptions\BuildException.cs" />
-    <Compile Include="Exceptions\ValidationException.cs" />
+    <Compile Include="Exceptions\RequestValidationException.cs" />
     <Compile Include="IApiClientBuilder.cs" />
     <Compile Include="Implementation\RestApiClient.cs" />
     <Compile Include="Authorization\Auth0AuthorizationHeaderFactory.cs" />
