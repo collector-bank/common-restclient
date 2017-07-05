@@ -43,7 +43,7 @@ namespace Collector.Common.RestClient.Implementation
         /// The requested data.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if request is null.</exception>
-        /// <exception cref="ValidationException">Thrown if request is invalid.</exception>
+        /// <exception cref="RequestValidationException">Thrown if request is invalid.</exception>
         /// <exception cref="RestApiException">Thrown if response is not OK or contains RestError.</exception>
         public async Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request)
             where TResourceIdentifier : class, IResourceIdentifier
@@ -63,7 +63,7 @@ namespace Collector.Common.RestClient.Implementation
         /// The requested data.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if request is null.</exception>
-        /// <exception cref="ValidationException">Thrown if request is invalid.</exception>
+        /// <exception cref="RequestValidationException">Thrown if request is invalid.</exception>
         /// <exception cref="RestApiException">Thrown if response is not OK or contains RestError.</exception>
         public async Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request)
             where TResourceIdentifier : class, IResourceIdentifier

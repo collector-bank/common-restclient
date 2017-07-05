@@ -53,7 +53,7 @@ namespace Collector.Common.RestClient.Implementation
         {
             var errorInfos = request.GetValidationErrors().ToList();
             if (errorInfos != null && errorInfos.Any())
-                throw new ValidationException(errorInfos);
+                throw new RequestValidationException(errorInfos);
         }
     }
 }
