@@ -40,11 +40,6 @@ namespace Collector.Common.RestClient.Authorization
             _clientSecret = clientSecret;
 
             _audience = audience;
-
-            if (_audience.EndsWith("/"))
-            {
-                _audience = _audience.Remove(_audience.Length - 1);
-            }
         }
 
         public string Get(IRestAuthorizeRequestData restAuthorizeRequestData)
