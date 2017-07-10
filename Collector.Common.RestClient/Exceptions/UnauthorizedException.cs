@@ -14,7 +14,7 @@ namespace Collector.Common.RestClient.Exceptions
         private const string ERROR_MESSAGE = "Access denied. Please validate the client id and/or client secret.";
 
         public UnauthorizedException()
-            : base(ERROR_MESSAGE, string.Empty)
+            : base(ERROR_MESSAGE)
         {
         }
     }

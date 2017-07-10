@@ -10,6 +10,7 @@ namespace Collector.Common.RestClient
     using System.Collections.Generic;
     using System.Linq;
 
+    using Collector.Common.RestClient.Authorization;
     using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Implementation;
     using Collector.Common.RestClient.Interfaces;
@@ -25,6 +26,7 @@ namespace Collector.Common.RestClient
         private ILogger _logger;
 
         private IRequestHandler _requestHandler;
+        private Func<string> _contextFunc;
 
         public IApiClientBuilder ConfigureContractByKey(string contractKey, string baseUrl, IAuthorizationHeaderFactory authorizationHeaderFactory = null)
         {
@@ -43,6 +45,38 @@ namespace Collector.Common.RestClient
                 Authenticators.Add(contractKey, authorizationHeaderFactory);
             }
 
+            return this;
+        }
+
+
+        public IApiClientBuilder ConfigureContractKeyFromAppSettings(string contractKey)
+        {
+            if (string.IsNullOrEmpty(contractKey))
+                throw new ArgumentNullException(nameof(contractKey));
+
+            if (BaseUris.ContainsKey(contractKey))
+            {
+                throw new BuildException($"{contractKey} has already been configured.");
+            }
+
+            BaseUris.Add(contractKey, ConfigReader.GetAndEnsureValueFromAppSettingsKey<string>($"RestClient:BaseUrl.{contractKey}"));
+
+            var authentication = ConfigReader.GetValueFromAppSettingsKey<string>($"RestClient:Authentication.{contractKey}");
+
+            if (!string.IsNullOrEmpty(authentication))
+            {
+                if (authentication.ToLower() == "oath2")
+                    Authenticators.Add(contractKey, new Oauth2AuthorizationHeaderFactory(contractKey));
+                else
+                    throw new NotSupportedException($"Authentication method '{authentication}' is not supported.");
+            }
+
+            return this;
+        }
+
+        public IApiClientBuilder WithContextFunction(Func<string> contextFunc)
+        {
+            _contextFunc = contextFunc;
             return this;
         }
 
@@ -73,7 +107,7 @@ namespace Collector.Common.RestClient
                 throw new BuildException("Please choose a Rest client type.");
             }
 
-            return new RestApiClient(_requestHandler, _logger);
+            return new RestApiClient(_requestHandler, _logger, _contextFunc);
         }
     }
 }

@@ -10,6 +10,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
     using System.Linq;
     using System.Threading.Tasks;
 
+    using Collector.Common.RestClient.Authorization;
     using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Implementation;
     using Collector.Common.RestClient.Interfaces;
@@ -34,6 +35,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
 
         private RestApiClient _sut;
         private IRequestHandler _stub;
+        private string _context;
 
         protected override void OnTestInitialize()
         {
@@ -42,9 +44,9 @@ namespace Collector.Common.RestClient.UnitTests.Client
             _stub.Stub(x => x.CallAsync(Arg<RequestWithResponse>.Is.Anything)).Return(Task.FromResult(Fixture.Create<string>()));
             _stub.Stub(x => x.CallAsync(Arg<RequestWithoutResponse>.Is.Anything)).Return(Task.FromResult(Fixture.Create<string>()));
 
-
+            _context = Fixture.Create<string>();
             _logEvents = new List<LogEvent>();
-            _sut = new RestApiClient(_stub, new LoggerConfiguration().WriteTo.Sink(new DelegatingSink(_logEvents.Add)).CreateLogger());
+            _sut = new RestApiClient(_stub, new LoggerConfiguration().WriteTo.Sink(new DelegatingSink(_logEvents.Add)).CreateLogger(), () => _context);
         }
 
         [Test]
@@ -91,6 +93,19 @@ namespace Collector.Common.RestClient.UnitTests.Client
             var anyLogEvents = _logEvents.Count(x => x.Level == LogEventLevel.Information);
 
             Assert.AreEqual(1, anyLogEvents);
+        }
+
+        [Test]
+        public async void When_executing_call_async_and_the_request_does_not_have_a_context_then_a_context_is_added()
+        {
+            var request = new RequestWithoutResponse(new DummyResourceIdentifier())
+            {
+                StringProperty = Fixture.Create<string>()
+            };
+
+            await _sut.CallAsync(request);
+
+            Assert.AreEqual(_context, request.Context);
         }
 
         protected override void OnTestFinalize()
