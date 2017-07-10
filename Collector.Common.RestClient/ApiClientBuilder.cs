@@ -17,26 +17,28 @@ namespace Collector.Common.RestClient
 
     using Serilog;
 
-    public class ApiClientBuilder : IApiClientBuilder
+    public class ApiClientBuilder
     {
         internal readonly IDictionary<string, string> BaseUris = new Dictionary<string, string>();
-
         internal readonly IDictionary<string, IAuthorizationHeaderFactory> Authenticators = new Dictionary<string, IAuthorizationHeaderFactory>();
 
         private ILogger _logger;
-
         private IRequestHandler _requestHandler;
         private Func<string> _contextFunc;
 
-        public IApiClientBuilder ConfigureContractByKey(string contractKey, string baseUrl, IAuthorizationHeaderFactory authorizationHeaderFactory = null)
+        /// <summary>
+        /// Configure the IRestApiClient by RestContract key
+        /// </summary>
+        /// <param name="contractKey">The key which identifies requests for contracts</param>
+        /// <param name="baseUrl">Api base url</param>
+        /// <param name="authorizationHeaderFactory">(optional) Authorization header factory creating the Authorization header for the request</param>
+        public ApiClientBuilder ConfigureContractByKey(string contractKey, string baseUrl, IAuthorizationHeaderFactory authorizationHeaderFactory = null)
         {
             if (string.IsNullOrEmpty(contractKey))
                 throw new ArgumentNullException(nameof(contractKey));
 
             if (BaseUris.ContainsKey(contractKey))
-            {
                 throw new BuildException($"{contractKey} has already been configured.");
-            }
 
             BaseUris.Add(contractKey, baseUrl);
 
@@ -49,15 +51,17 @@ namespace Collector.Common.RestClient
         }
 
 
-        public IApiClientBuilder ConfigureContractKeyFromAppSettings(string contractKey)
+        /// <summary>
+        /// Configure the IRestApiClient using app config values for the specified RestContract key
+        /// </summary>
+        /// <param name="contractKey">The key which identifies requests for contracts</param>
+        public ApiClientBuilder ConfigureContractKeyFromAppSettings(string contractKey)
         {
             if (string.IsNullOrEmpty(contractKey))
                 throw new ArgumentNullException(nameof(contractKey));
 
             if (BaseUris.ContainsKey(contractKey))
-            {
                 throw new BuildException($"{contractKey} has already been configured.");
-            }
 
             BaseUris.Add(contractKey, ConfigReader.GetAndEnsureValueFromAppSettingsKey<string>($"RestClient:BaseUrl.{contractKey}"));
 
@@ -74,19 +78,26 @@ namespace Collector.Common.RestClient
             return this;
         }
 
-        public IApiClientBuilder WithContextFunction(Func<string> contextFunc)
+        public ApiClientBuilder WithContextFunction(Func<string> contextFunc)
         {
             _contextFunc = contextFunc;
             return this;
         }
 
-        public IApiClientBuilder ConfigureLogging(ILogger logger)
+        /// <summary>
+        /// Configures serilog for all requests made by the IRestApiClient that's beeing built
+        /// </summary>
+        /// <param name="logger">Configured ILogger</param>
+        public ApiClientBuilder ConfigureLogging(ILogger logger)
         {
             _logger = logger;
             return this;
         }
 
-        public IApiClientBuilder UseRestSharp()
+        /// <summary>
+        /// Using RestSharp client as the request provider
+        /// </summary>
+        public ApiClientBuilder UseRestSharp()
         {
             var wrapper = new RestSharpClientWrapper(BaseUris, Authenticators);
 
@@ -95,6 +106,10 @@ namespace Collector.Common.RestClient
             return this;
         }
 
+        /// <summary>
+        /// Builds a configured IRestApiClient, based on currently configured configurations
+        /// </summary>
+        /// <returns>Fully configured IRestApiClient</returns>
         public IRestApiClient Build()
         {
             if (!BaseUris.Any())
