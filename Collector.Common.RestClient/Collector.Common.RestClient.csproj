@@ -46,6 +46,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -55,11 +56,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Authorization\Oauth2AuthorizationHeaderFactory.cs" />
+    <Compile Include="ConfigReader.cs" />
     <Compile Include="Exceptions\BuildException.cs" />
     <Compile Include="Exceptions\RequestValidationException.cs" />
     <Compile Include="IApiClientBuilder.cs" />
     <Compile Include="Implementation\RestApiClient.cs" />
-    <Compile Include="Authorization\Auth0AuthorizationHeaderFactory.cs" />
     <Compile Include="ApiClientBuilder.cs" />
     <Compile Include="Interfaces\IAuthorizationHeaderFactory.cs" />
     <Compile Include="Authorization\RestAuthorizeRequestData.cs" />

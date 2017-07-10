@@ -10,11 +10,8 @@ namespace Collector.Common.RestClient.Exceptions
 
     public class AuthException : Exception
     {
-        public AuthException(string message, string errorCode) : base(message)
+        public AuthException(string message) : base(message)
         {
-            ErrorCode = errorCode;
         }
-
-        public string ErrorCode { get; set; }
     }
 }
