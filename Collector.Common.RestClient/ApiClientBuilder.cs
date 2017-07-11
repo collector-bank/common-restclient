@@ -63,13 +63,13 @@ namespace Collector.Common.RestClient
             if (BaseUris.ContainsKey(contractKey))
                 throw new BuildException($"{contractKey} has already been configured.");
 
-            BaseUris.Add(contractKey, ConfigReader.GetAndEnsureValueFromAppSettingsKey<string>($"RestClient:BaseUrl.{contractKey}"));
+            BaseUris.Add(contractKey, ConfigReader.GetAndEnsureValueFromAppSettingsKey($"{contractKey}.BaseUrl"));
 
-            var authentication = ConfigReader.GetValueFromAppSettingsKey<string>($"RestClient:Authentication.{contractKey}");
+            var authentication = ConfigReader.GetValueFromAppSettingsKey(contractKey, "Authentication");
 
             if (!string.IsNullOrEmpty(authentication))
             {
-                if (authentication.ToLower() == "oath2")
+                if (authentication.ToLower() == "oauth2")
                     Authenticators.Add(contractKey, new Oauth2AuthorizationHeaderFactory(contractKey));
                 else
                     throw new NotSupportedException($"Authentication method '{authentication}' is not supported.");
