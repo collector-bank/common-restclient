@@ -6,36 +6,43 @@
 
     internal class ConfigReader
     {
-        public static T GetValueFromAppSettingsKey<T>(string key)
+        public static string GetValueFromAppSettingsKey(string key)
         {
-            if (String.IsNullOrWhiteSpace(key))
-            {
+            if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentNullException(nameof(key));
-            }
 
-            var str = ConfigurationManager.AppSettings[key];
-            if (!String.IsNullOrWhiteSpace(str))
-            {
-                str = str.Replace("&amp;", "&");
-            }
-            else
-            {
-                return default(T);
-            }
+            var str = ConfigurationManager.AppSettings[$"RestClient:{key}"];
 
-            return (T)Convert.ChangeType(str, typeof(T));
+            if (string.IsNullOrWhiteSpace(str))
+                return null;
+
+            return str.Replace("&amp;", "&");
         }
 
-        public static T GetAndEnsureValueFromAppSettingsKey<T>(string key)
+        public static string GetAndEnsureValueFromAppSettingsKey(string key)
         {
-            var fromAppSettingsKey = GetValueFromAppSettingsKey<T>(key);
+            var fromAppSettingsKey = GetValueFromAppSettingsKey(key);
 
-            if (fromAppSettingsKey != null)
-            {
-                return fromAppSettingsKey;
-            }
+            if (fromAppSettingsKey == null)
+                throw new KeyNotFoundException($"Could not find {key} in config, configure a value for key 'RestClient:{key}'");
 
-            throw new KeyNotFoundException($"The key '{key}' is not found in the config file.");
+            return fromAppSettingsKey;
+        }
+
+        public static string GetValueFromAppSettingsKey(string contractKey, string key)
+        {
+            return GetValueFromAppSettingsKey($"{contractKey}.{key}")
+                   ?? GetValueFromAppSettingsKey(key);
+        }
+
+        public static string GetAndEnsureValueFromAppSettingsKey(string contractKey, string key)
+        {
+            var fromAppSettingsKey = GetValueFromAppSettingsKey(contractKey, key);
+
+            if (fromAppSettingsKey == null)
+                throw new KeyNotFoundException($"Could not find {key} in config, either configure a value for key 'RestClient:{key}' or key 'RestClient:{contractKey}.{key}'");
+
+            return fromAppSettingsKey;
         }
     }
 }

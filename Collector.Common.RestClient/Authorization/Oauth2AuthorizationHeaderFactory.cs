@@ -47,20 +47,11 @@ namespace Collector.Common.RestClient.Authorization
 
         internal Oauth2AuthorizationHeaderFactory(string contractKey)
         {
-            _audience = ConfigReader.GetAndEnsureValueFromAppSettingsKey<string>($"RestClient:Audience.{contractKey}");
+            _audience = ConfigReader.GetAndEnsureValueFromAppSettingsKey($"{contractKey}.Audience");
 
-            _issuer = ConfigReader.GetValueFromAppSettingsKey<string>($"RestClient:Issuer.{contractKey}") ?? ConfigReader.GetValueFromAppSettingsKey<string>("RestClient:Issuer");
-            _clientId = ConfigReader.GetValueFromAppSettingsKey<string>($"RestClient:ClientId.{contractKey}") ?? ConfigReader.GetValueFromAppSettingsKey<string>("RestClient:ClientId");
-            _clientSecret = ConfigReader.GetValueFromAppSettingsKey<string>($"RestClient:ClientSecret.{contractKey}") ?? ConfigReader.GetValueFromAppSettingsKey<string>("RestClient:ClientSecret");
-
-            if (_issuer == null)
-                throw new KeyNotFoundException($"Could not find issuer in config, either configure a value for key 'RestClient:Issuer' or key 'RestClient:Issuer.{contractKey}'");
-            
-            if (_clientId == null)
-                throw new KeyNotFoundException($"Could not find client id in config, either configure a value for key 'RestClient:ClientId' or key 'RestClient:ClientId.{contractKey}'");
-
-            if (_clientSecret == null)
-                throw new KeyNotFoundException($"Could not find client secret in config, either configure a value for key 'RestClient:ClientSecret' or key 'RestClient:ClientSecret.{contractKey}'");
+            _issuer = ConfigReader.GetAndEnsureValueFromAppSettingsKey(contractKey, "Issuer");
+            _clientId = ConfigReader.GetAndEnsureValueFromAppSettingsKey(contractKey, "ClientId");
+            _clientSecret = ConfigReader.GetAndEnsureValueFromAppSettingsKey(contractKey, "ClientSecret");
         }
 
         public string Get(IRestAuthorizeRequestData restAuthorizeRequestData)
