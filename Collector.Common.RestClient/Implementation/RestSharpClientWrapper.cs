@@ -92,14 +92,17 @@ namespace Collector.Common.RestClient.Implementation
         {
             try
             {
-                var logger = _logger;
-                if (restRequest.Method != Method.GET && restRequest.Method != Method.DELETE)
-                    logger = _logger?.ForContext("RequestContent", JsonConvert.SerializeObject(request, Formatting.Indented));
+                var restClientLogProperty = new
+                                            {
+                                                RequestContent = restRequest.Method == Method.GET || restRequest.Method == Method.DELETE
+                                                                     ? string.Empty
+                                                                     : JsonConvert.SerializeObject(request, Formatting.Indented),
+                                                HttpRequestUrl = restClient.BuildUri(restRequest).ToString(),
+                                                HttpRequestType = restRequest.Method
+                                            };
 
-                var uri = restClient.BuildUri(restRequest);
-                logger?.ForContext("HttpRequestUrl", uri)
-                      ?.ForContext("HttpRequestType", restRequest.Method)
-                      ?.Information("Rest request sent");
+                _logger?.ForContext("RestClient", restClientLogProperty, destructureObjects: true)
+                       ?.Information("Rest request sent");
             }
             catch (Exception e)
             {
@@ -112,12 +115,17 @@ namespace Collector.Common.RestClient.Implementation
             try
             {
                 var formattedResponseContent = GetFormatedResponseContent(response);
-                _logger?.ForContext("HttpRequestUrl", response.ResponseUri)
-                       ?.ForContext("HttpRequestType", restRequest.Method)
-                       ?.ForContext("StatusCode", (int)response.StatusCode)
-                       ?.ForContext("ResponseTimeMilliseconds", (int)stopwatch.ElapsedMilliseconds)
-                       ?.ForContext("RawResponseBody", response.Content)
-                       ?.ForContext("ResponseBody", formattedResponseContent)
+                var restClientLogProperty = new
+                                            {
+                                                HttpRequestUrl = response.ResponseUri,
+                                                HttpRequestType = restRequest.Method,
+                                                StatusCode = (int)response.StatusCode,
+                                                ResponseTimeMilliseconds = (int)stopwatch.ElapsedMilliseconds,
+                                                RawResponseBody = response.Content,
+                                                ResponseBody = formattedResponseContent
+                                            };
+
+                _logger?.ForContext("RestClient", restClientLogProperty, destructureObjects: true)
                        ?.Information("Rest response recieved");
             }
             catch (Exception e)
