@@ -23,7 +23,6 @@ namespace Collector.Common.RestClient
         internal readonly IDictionary<string, IAuthorizationHeaderFactory> Authenticators = new Dictionary<string, IAuthorizationHeaderFactory>();
 
         private ILogger _logger;
-        private IRequestHandler _requestHandler;
         private Func<string> _contextFunc;
 
         /// <summary>
@@ -95,18 +94,6 @@ namespace Collector.Common.RestClient
         }
 
         /// <summary>
-        /// Using RestSharp client as the request provider
-        /// </summary>
-        public ApiClientBuilder UseRestSharp()
-        {
-            var wrapper = new RestSharpClientWrapper(BaseUris, Authenticators);
-
-            _requestHandler = new RestSharpRequestHandler(wrapper);
-
-            return this;
-        }
-
-        /// <summary>
         /// Builds a configured IRestApiClient, based on currently configured configurations
         /// </summary>
         /// <returns>Fully configured IRestApiClient</returns>
@@ -117,12 +104,11 @@ namespace Collector.Common.RestClient
                 throw new BuildException("Please configure atleast one base uri");
             }
 
-            if (_requestHandler == null)
-            {
-                throw new BuildException("Please choose a Rest client type.");
-            }
+            var wrapper = new RestSharpClientWrapper(BaseUris, Authenticators, _logger);
 
-            return new RestApiClient(_requestHandler, _logger, _contextFunc);
+            var requestHandler = new RestSharpRequestHandler(wrapper);
+
+            return new RestApiClient(requestHandler, _contextFunc);
         }
     }
 }

@@ -31,8 +31,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
             var contract = Fixture.Create<string>();
             var endpoint = Fixture.Create<string>();
 
-            var builder = (ApiClientBuilder)SUT
-                .ConfigureContractByKey(contract, endpoint);
+            var builder = SUT.ConfigureContractByKey(contract, endpoint);
 
             CollectionAssert.Contains(builder.BaseUris.Keys, contract);
         }
@@ -43,8 +42,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
             var contract = Fixture.Create<string>();
             var endpoint = Fixture.Create<string>();
 
-            var builder = (ApiClientBuilder)SUT
-                .ConfigureContractByKey(contract, endpoint);
+            var builder = SUT.ConfigureContractByKey(contract, endpoint);
 
             Assert.AreEqual(endpoint, builder.BaseUris[contract]);
         }
@@ -83,7 +81,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
             var authorizationHeaderFactory = Fixture.Create<IAuthorizationHeaderFactory>();
             Fixture.Create<IRestRequest>().Stub(x => x.Parameters).Return(new List<Parameter>());
 
-            var builder = (ApiClientBuilder)SUT.ConfigureContractByKey(contract, endpoint, authorizationHeaderFactory);
+            var builder = SUT.ConfigureContractByKey(contract, endpoint, authorizationHeaderFactory);
 
             var configuredAuthorizationHeaderFactory = builder.Authenticators[contract];
 
@@ -93,19 +91,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
         [Test]
         public void When_building_it_will_throw_exception_if_no_contracts_are_configured()
         {
-            Assert.Throws<BuildException>(() =>
-                                          {
-                                              SUT.ConfigureContractByKey(Fixture.Create<string>(), Fixture.Create<string>()).Build();
-                                          });
-        }
-
-        [Test]
-        public void When_building_it_will_throw_exception_if_no_rest_client_is_configured()
-        {
-            Assert.Throws<BuildException>(() =>
-                                          {
-                                              SUT.ConfigureContractByKey(Fixture.Create<string>(), Fixture.Create<string>()).Build();
-                                          });
+            Assert.Throws<BuildException>(() => SUT.Build());
         }
     }
 }

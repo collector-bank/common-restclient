@@ -9,24 +9,33 @@ namespace Collector.Common.RestClient.Implementation
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics;
 
     using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.Interfaces;
+    using Collector.Common.RestContracts.Interfaces;
+
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
 
     using RestSharp;
     using RestSharp.Authenticators;
+
+    using Serilog;
 
     internal sealed class RestSharpClientWrapper : IRestSharpClientWrapper
     {
         private readonly IDictionary<string, string> _baseUrlMappings;
         private readonly IDictionary<string, IAuthorizationHeaderFactory> _authorizationHeaderFactories;
+        private readonly ILogger _logger;
 
         internal readonly ConcurrentDictionary<string, IRestClient> RestClients = new ConcurrentDictionary<string, IRestClient>();
 
-        public RestSharpClientWrapper(IDictionary<string, string> baseUrlMappings, IDictionary<string, IAuthorizationHeaderFactory> authorizationHeaderFactories)
+        public RestSharpClientWrapper(IDictionary<string, string> baseUrlMappings, IDictionary<string, IAuthorizationHeaderFactory> authorizationHeaderFactories, ILogger logger)
         {
             _baseUrlMappings = baseUrlMappings;
             _authorizationHeaderFactories = authorizationHeaderFactories;
+            _logger = logger?.ForContext(GetType());
         }
 
         internal void InitRestClient(string contractKey)
@@ -54,8 +63,9 @@ namespace Collector.Common.RestClient.Implementation
             RestClients.TryAdd(contractKey, client);
         }
 
-        public void ExecuteAsync(IRestRequest request, string contractKey, Action<IRestResponse> callback)
+        public void ExecuteAsync(IRestRequest restRequest, IRequest request, Action<IRestResponse> callback)
         {
+            var contractKey = request.GetConfigurationKey();
             if (!RestClients.ContainsKey(contractKey))
             {
                 InitRestClient(contractKey);
@@ -63,7 +73,71 @@ namespace Collector.Common.RestClient.Implementation
 
             var restClient = RestClients[contractKey];
 
-            restClient.ExecuteAsync(request, callback);
+
+            TryLogRequest(restRequest, request, restClient);
+
+            var stopwatch = Stopwatch.StartNew();
+            restClient.ExecuteAsync(
+                restRequest,
+                response =>
+                {
+                    stopwatch.Stop();
+                    TryLogResponse(restRequest, stopwatch, response);
+
+                    callback(response);
+                });
+        }
+
+        private void TryLogRequest(IRestRequest restRequest, IRequest request, IRestClient restClient)
+        {
+            try
+            {
+                var logger = _logger;
+                if (restRequest.Method != Method.GET && restRequest.Method != Method.DELETE)
+                    logger = _logger?.ForContext("RequestContent", JsonConvert.SerializeObject(request, Formatting.Indented));
+
+                var uri = restClient.BuildUri(restRequest);
+                logger?.ForContext("HttpRequestUrl", uri)
+                      ?.ForContext("HttpRequestType", restRequest.Method)
+                      ?.Information("Rest request sent");
+            }
+            catch (Exception e)
+            {
+                _logger?.Warning(e, "There was a problem logging the rest request");
+            }
+        }
+
+        private void TryLogResponse(IRestRequest restRequest, Stopwatch stopwatch, IRestResponse response)
+        {
+            try
+            {
+                var formattedResponseContent = GetFormatedResponseContent(response);
+                _logger?.ForContext("HttpRequestUrl", response.ResponseUri)
+                       ?.ForContext("HttpRequestType", restRequest.Method)
+                       ?.ForContext("StatusCode", (int)response.StatusCode)
+                       ?.ForContext("ResponseTimeMilliseconds", (int)stopwatch.ElapsedMilliseconds)
+                       ?.ForContext("RawResponseBody", response.Content)
+                       ?.ForContext("ResponseBody", formattedResponseContent)
+                       ?.Information("Rest response recieved");
+            }
+            catch (Exception e)
+            {
+                _logger?.Warning(e, "There was a problem logging the rest response");
+            }
+        }
+
+        private string GetFormatedResponseContent(IRestResponse response)
+        {
+            try
+            {
+                var jObject = (JObject)JsonConvert.DeserializeObject(response.Content);
+
+                return JsonConvert.SerializeObject(jObject, Formatting.Indented);
+            }
+            catch
+            {
+                return "Could not format the raw response body";
+            }
         }
     }
 }

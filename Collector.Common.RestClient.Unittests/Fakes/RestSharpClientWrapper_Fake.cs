@@ -11,6 +11,7 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
 
     using Collector.Common.RestClient.Interfaces;
     using Collector.Common.RestContracts;
+    using Collector.Common.RestContracts.Interfaces;
 
     using global::RestSharp;
     using global::RestSharp.Authenticators;
@@ -34,9 +35,9 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
             return ExecuteRequest(request);
         }
 
-        public void ExecuteAsync(IRestRequest request, string contractKey, Action<IRestResponse> callback)
+        public void ExecuteAsync(IRestRequest restRequest, IRequest request, Action<IRestResponse> callback)
         {
-            var response = ExecuteRequest(request);
+            var response = ExecuteRequest(restRequest);
             
             callback(response);
         }
