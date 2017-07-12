@@ -15,25 +15,20 @@ namespace Collector.Common.RestClient.Implementation
     using Collector.Common.RestContracts;
     using Collector.Common.RestContracts.Interfaces;
 
-    using Serilog;
-
     internal class RestApiClient : IRestApiClient
     {
         private readonly IRequestHandler _requestHandler;
         private readonly Func<string> _contexFunc;
-        private readonly ILogger _logger;
 
-        internal RestApiClient(IRequestHandler requestHandler, ILogger logger, Func<string> contexFunc)
+        internal RestApiClient(IRequestHandler requestHandler, Func<string> contexFunc)
         {
             _requestHandler = requestHandler;
             _contexFunc = contexFunc;
-            _logger = logger?.ForContext<RestApiClient>();
         }
 
         public Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier
         {
             request.Context = request.Context ?? _contexFunc?.Invoke();
-            LogRequest(request);
             EnsureRequestObjectIsValid(request);
             return _requestHandler.CallAsync(request);
         }
@@ -41,17 +36,10 @@ namespace Collector.Common.RestClient.Implementation
         public async Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request) where TResourceIdentifier : class, IResourceIdentifier
         {
             request.Context = request.Context ?? _contexFunc?.Invoke();
-            LogRequest(request);
             EnsureRequestObjectIsValid(request);
             var response = await _requestHandler.CallAsync(request);
-
-            _logger?.Information("CallAsync response {@ResponseType}", response.GetType());
+            
             return response;
-        }
-
-        private void LogRequest<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier
-        {
-            _logger?.Information("CallAsync request type {Type} identifier {@Identifier}", request.GetType(), request.GetResourceIdentifier());
         }
 
         private void EnsureRequestObjectIsValid(IRequest request)

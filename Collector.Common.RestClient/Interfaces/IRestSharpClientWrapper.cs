@@ -8,10 +8,12 @@ namespace Collector.Common.RestClient.Interfaces
 {
     using System;
 
+    using Collector.Common.RestContracts.Interfaces;
+
     using RestSharp;
 
     internal interface IRestSharpClientWrapper
     {
-        void ExecuteAsync(IRestRequest request, string contractKey, Action<IRestResponse> callback);
+        void ExecuteAsync(IRestRequest restRequest, IRequest request, Action<IRestResponse> callback);
     }
 }

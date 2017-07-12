@@ -7,8 +7,6 @@
 namespace Collector.Common.RestClient.Exceptions
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Net;
 
     using Collector.Common.RestContracts;
@@ -23,7 +21,7 @@ namespace Collector.Common.RestClient.Exceptions
         /// </summary>
         /// <param name="httpStatusCode"></param>
         /// <param name="message">The message.</param>
-        internal RestApiException(HttpStatusCode httpStatusCode, string message)
+        public RestApiException(HttpStatusCode httpStatusCode, string message)
             : base(message: message)
         {
             HttpStatusCode = httpStatusCode;
@@ -34,7 +32,7 @@ namespace Collector.Common.RestClient.Exceptions
         /// </summary>
         /// <param name="httpStatusCode"></param>
         /// <param name="restError">The rest error.</param>
-        internal RestApiException(HttpStatusCode httpStatusCode, Error restError)
+        public RestApiException(HttpStatusCode httpStatusCode, Error restError)
             : base(message: restError.Message)
         {
             HttpStatusCode = httpStatusCode;
