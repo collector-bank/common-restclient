@@ -4,14 +4,14 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient.Interfaces
+namespace Collector.Common.RestClient
 {
     using System.Threading.Tasks;
 
     using Collector.Common.RestContracts;
     using Collector.Common.RestContracts.Interfaces;
 
-    public interface IRequestHandler
+    internal interface IRequestHandler
     {
         Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request)
             where TResourceIdentifier : class, IResourceIdentifier;

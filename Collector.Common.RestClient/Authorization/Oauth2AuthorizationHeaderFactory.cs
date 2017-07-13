@@ -12,49 +12,28 @@ namespace Collector.Common.RestClient.Authorization
     using System.Net;
 
     using Collector.Common.RestClient.Exceptions;
-    using Collector.Common.RestClient.Interfaces;
 
     using Newtonsoft.Json;
 
     using RestSharp;
 
-    public class Oauth2AuthorizationHeaderFactory : IAuthorizationHeaderFactory
+    using Serilog;
+
+    internal class Oauth2AuthorizationHeaderFactory : IAuthorizationHeaderFactory
     {
-        private readonly string _issuer;
-        private readonly string _clientId;
-        private readonly string _clientSecret;
-        private readonly string _audience;
+        private readonly Oauth2AuthorizationConfiguration _configuration;
+        private readonly ILogger _logger;
         private string _token;
         private DateTimeOffset _expiration;
         private string _tokenType;
 
-        public Oauth2AuthorizationHeaderFactory(string clientId, string clientSecret, string audience, string issuer)
+        public Oauth2AuthorizationHeaderFactory(Oauth2AuthorizationConfiguration configuration, ILogger logger)
         {
-            if (string.IsNullOrEmpty(clientId))
-                throw new ArgumentNullException(nameof(clientId));
-            if (string.IsNullOrEmpty(clientSecret))
-                throw new ArgumentNullException(nameof(clientSecret));
-            if (string.IsNullOrEmpty(audience))
-                throw new ArgumentNullException(nameof(audience));
-            if (string.IsNullOrEmpty(issuer))
-                throw new ArgumentNullException(nameof(issuer));
-
-            _clientId = clientId;
-            _clientSecret = clientSecret;
-            _audience = audience;
-            _issuer = issuer;
+            _configuration = configuration;
+            _logger = logger.ForContext(GetType());
         }
 
-        internal Oauth2AuthorizationHeaderFactory(string contractKey)
-        {
-            _audience = ConfigReader.GetAndEnsureValueFromAppSettingsKey($"{contractKey}.Audience");
-
-            _issuer = ConfigReader.GetAndEnsureValueFromAppSettingsKey(contractKey, "Issuer");
-            _clientId = ConfigReader.GetAndEnsureValueFromAppSettingsKey(contractKey, "ClientId");
-            _clientSecret = ConfigReader.GetAndEnsureValueFromAppSettingsKey(contractKey, "ClientSecret");
-        }
-
-        public string Get(IRestAuthorizeRequestData restAuthorizeRequestData)
+        public string Get(RestAuthorizeRequestData restAuthorizeRequestData)
         {
             var token = GetToken();
             return $"{_tokenType} {token}";
@@ -70,16 +49,16 @@ namespace Collector.Common.RestClient.Authorization
 
         private void GetNewToken()
         {
-            var client = new RestClient(_issuer);
+            var client = new RestClient(_configuration.Issuer);
             var request = new RestRequest(Method.POST);
             request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
             request.AddHeader("Accept", "application/json");
 
             var requestBodyParameters = new Dictionary<string, string>
                              {
-                                 ["client_id"] = _clientId,
-                                 ["client_secret"] = _clientSecret,
-                                 ["audience"] = _audience,
+                                 ["client_id"] = _configuration.ClientId,
+                                 ["client_secret"] = _configuration.ClientSecret,
+                                 ["audience"] = _configuration.Audience,
                                  ["grant_type"] = "client_credentials"
                              };
 
@@ -89,14 +68,11 @@ namespace Collector.Common.RestClient.Authorization
             
             var response = client.Execute(request);
 
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                throw new UnauthorizedException();
-            }
-
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                throw new AuthException(response.Content);
+                _logger?.ForContext("IssuerResponse", response.Content)
+                       ?.Warning("There was a problem getting oauth2 token from the issuer {Issuer}", _configuration.Issuer);
+                throw new RestClientCallException(HttpStatusCode.Unauthorized, "Access denied, please verify oauth2 configuration.");
             }
 
             try
@@ -105,10 +81,11 @@ namespace Collector.Common.RestClient.Authorization
                 _token = data.access_token;
                 _expiration = DateTimeOffset.UtcNow.AddSeconds(data.expires_in - 10);
                 _tokenType = data.token_type;
+                _logger?.Information("Successfully fetched oath2 token from the issuer {Issuer}", _configuration.Issuer);
             }
             catch
             {
-                throw new AuthException("Cannot parse the oauth response.");
+                throw new RestClientCallException(HttpStatusCode.Unauthorized, "Cannot parse the oauth2 response.");
             }
         }
 

@@ -9,7 +9,7 @@ namespace Collector.Common.RestClient.UnitTests.Fakes
     using System;
     using System.Net;
 
-    using Collector.Common.RestClient.Interfaces;
+    using Collector.Common.RestClient.RestSharpClient;
     using Collector.Common.RestContracts;
     using Collector.Common.RestContracts.Interfaces;
 

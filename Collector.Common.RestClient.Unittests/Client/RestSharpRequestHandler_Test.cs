@@ -13,10 +13,10 @@ namespace Collector.Common.RestClient.UnitTests.Client
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
-    
+
+    using Collector.Common.RestClient.Authorization;
     using Collector.Common.RestClient.Exceptions;
-    using Collector.Common.RestClient.Implementation;
-    using Collector.Common.RestClient.Interfaces;
+    using Collector.Common.RestClient.RestSharpClient;
     using Collector.Common.RestClient.UnitTests.Fakes;
     using Collector.Common.RestContracts;
     using Collector.Common.UnitTest.Helpers;
@@ -56,7 +56,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
 
             restClientWrapper.Authenticator.Authenticate(Fixture.Create<IRestClient>(), Fixture.Create<IRestRequest>());
 
-            authorizationHeaderFactory.AssertWasCalled(x => x.Get(Arg<IRestAuthorizeRequestData>.Is.Anything));
+            authorizationHeaderFactory.AssertWasCalled(x => x.Get(Arg<RestAuthorizeRequestData>.Is.Anything));
         }
 
         [Test]
@@ -119,7 +119,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
             restClientWrapper.ExpectedError = null;
             restClientWrapper.ExpectedResponseStatusCode = HttpStatusCode.BadRequest;
             
-            var exception = Assert.Throws<RestApiException>(async () => await _sut.CallAsync(request));
+            var exception = Assert.Throws<RestClientCallException>(async () => await _sut.CallAsync(request));
 
             Assert.AreEqual(restClientWrapper.ExpectedResponseStatusCode, exception.HttpStatusCode);
         }
@@ -131,7 +131,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
 
             ConfigureRestSharpFakeWrapper();
 
-            Assert.Throws<RestApiException>(async () => await _sut.CallAsync(request));
+            Assert.Throws<RestClientCallException>(async () => await _sut.CallAsync(request));
         }
 
         [Test]
@@ -142,7 +142,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
 
             ConfigureRestSharpFakeWrapper(expectedError);
 
-            var exception = Assert.Throws<RestApiException>(async () => await _sut.CallAsync(request));
+            var exception = Assert.Throws<RestClientCallException>(async () => await _sut.CallAsync(request));
 
             Assert.AreEqual(expectedError.Code, exception.Error.Code);
             Assert.AreEqual(expectedError.Message, exception.Error.Message);

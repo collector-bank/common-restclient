@@ -1,21 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IRestAuthorizeRequestData.cs" company="Collector AB">
+// <copyright file="RestClientConfigurationException.cs" company="Collector AB">
 //   Copyright © Collector AB. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient.Interfaces
+namespace Collector.Common.RestClient.Exceptions
 {
     using System;
 
-    using Collector.Common.RestContracts;
-
-    public interface IRestAuthorizeRequestData
+    public class RestClientConfigurationException : Exception
     {
-        string Body { get; }
-
-        Uri Uri { get; }
-
-        HttpMethod HttpMethod { get; }
+        public RestClientConfigurationException(string message)
+            : base(message)
+        {
+        }
     }
 }

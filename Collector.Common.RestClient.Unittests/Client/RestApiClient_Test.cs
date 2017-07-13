@@ -9,8 +9,6 @@ namespace Collector.Common.RestClient.UnitTests.Client
     using System.Threading.Tasks;
 
     using Collector.Common.RestClient.Exceptions;
-    using Collector.Common.RestClient.Implementation;
-    using Collector.Common.RestClient.Interfaces;
     using Collector.Common.RestClient.UnitTests.Fakes;
     using Collector.Common.UnitTest.Helpers;
     using Collector.Common.UnitTest.Helpers.Autofixture;
@@ -45,7 +43,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
         {
             var request = new RequestWithResponse(new DummyResourceIdentifier());
 
-            Assert.Throws<RequestValidationException>(async () => await _sut.CallAsync(request));
+            Assert.Throws<RestClientCallException>(async () => await _sut.CallAsync(request));
         }
 
         [Test]
@@ -53,7 +51,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
         {
             var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = null };
 
-            Assert.Throws<RequestValidationException>(async () => await _sut.CallAsync(request));
+            Assert.Throws<RestClientCallException>(async () => await _sut.CallAsync(request));
         }
 
         [Test]

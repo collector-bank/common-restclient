@@ -4,12 +4,11 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient.Implementation
+namespace Collector.Common.RestClient.RestSharpClient
 {
     using System.Linq;
 
     using Collector.Common.RestClient.Authorization;
-    using Collector.Common.RestClient.Interfaces;
 
     using RestSharp;
     using RestSharp.Authenticators;

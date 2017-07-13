@@ -4,22 +4,21 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient.Implementation
+namespace Collector.Common.RestClient.RestSharpClient
 {
     using System;
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
-    
+
     using Collector.Common.RestClient.Exceptions;
-    using Collector.Common.RestClient.Interfaces;
     using Collector.Common.RestContracts;
     using Collector.Common.RestContracts.Interfaces;
 
     using Newtonsoft.Json;
 
     using RestSharp;
-    
+
     internal class RestSharpRequestHandler : IRequestHandler
     {
         private readonly IRestSharpClientWrapper _client;
@@ -38,7 +37,7 @@ namespace Collector.Common.RestClient.Implementation
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if request is null.</exception>
         /// <exception cref="RequestValidationException">Thrown if request is invalid.</exception>
-        /// <exception cref="RestApiException">Thrown if response is not OK or contains RestError.</exception>
+        /// <exception cref="RestClientCallException">Thrown if response is not OK or contains RestError.</exception>
         public async Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request)
             where TResourceIdentifier : class, IResourceIdentifier
         {
@@ -58,7 +57,7 @@ namespace Collector.Common.RestClient.Implementation
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if request is null.</exception>
         /// <exception cref="RequestValidationException">Thrown if request is invalid.</exception>
-        /// <exception cref="RestApiException">Thrown if response is not OK or contains RestError.</exception>
+        /// <exception cref="RestClientCallException">Thrown if response is not OK or contains RestError.</exception>
         public async Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request)
             where TResourceIdentifier : class, IResourceIdentifier
         {
@@ -118,22 +117,22 @@ namespace Collector.Common.RestClient.Implementation
 
                         if (result.Error != null)
                         {
-                            taskCompletionSource.SetException(new RestApiException(response.StatusCode, result.Error));
+                            taskCompletionSource.SetException(new RestClientCallException(response.StatusCode, result.Error));
                         }
-                        else if (!IsSuccessStatusCode(response))
+                        else if (IsSuccessStatusCode(response))
                         {
-                            taskCompletionSource.SetException(new RestApiException(
-                                httpStatusCode: response.StatusCode,
-                                message: "No response body recieved"));
+                            taskCompletionSource.SetResult(result.Data);
                         }
                         else
                         {
-                            taskCompletionSource.SetResult(result.Data);
+                            taskCompletionSource.SetException(new RestClientCallException(
+                                httpStatusCode: response.StatusCode,
+                                message: $"Rest request not successful, {response.StatusCode}"));
                         }
                     }
                     catch (Exception ex)
                     {
-                        taskCompletionSource.SetException(new RestApiException(
+                        taskCompletionSource.SetException(new RestClientCallException(
                              httpStatusCode: response.StatusCode,
                              restError: new Error
                              {

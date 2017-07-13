@@ -9,8 +9,8 @@ namespace Collector.Common.RestClient.UnitTests.Client
     using System;
     using System.Collections.Generic;
 
+    using Collector.Common.RestClient.Authorization;
     using Collector.Common.RestClient.Exceptions;
-    using Collector.Common.RestClient.Interfaces;
     using Collector.Common.UnitTest.Helpers;
     using Collector.Common.UnitTest.Helpers.Autofixture;
 
@@ -55,7 +55,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
             var endpoint = Fixture.Create<string>();
 
 
-            Assert.Throws<BuildException>(() =>
+            Assert.Throws<RestClientConfigurationException>(() =>
                                           {
                                               SUT.ConfigureContractByKey(contract, endpoint)
                                                   .ConfigureContractByKey(contract, endpoint);
@@ -78,10 +78,10 @@ namespace Collector.Common.RestClient.UnitTests.Client
         {
             var contract = Fixture.Create<string>();
             var endpoint = Fixture.Create<string>();
-            var authorizationHeaderFactory = Fixture.Create<IAuthorizationHeaderFactory>();
+            var authorizationConfiguration = Fixture.Create<IAuthorizationConfiguration>();
             Fixture.Create<IRestRequest>().Stub(x => x.Parameters).Return(new List<Parameter>());
 
-            var builder = SUT.ConfigureContractByKey(contract, endpoint, authorizationHeaderFactory);
+            var builder = SUT.ConfigureContractByKey(contract, endpoint, authorizationConfiguration);
 
             var configuredAuthorizationHeaderFactory = builder.Authenticators[contract];
 
@@ -91,7 +91,7 @@ namespace Collector.Common.RestClient.UnitTests.Client
         [Test]
         public void When_building_it_will_throw_exception_if_no_contracts_are_configured()
         {
-            Assert.Throws<BuildException>(() => SUT.Build());
+            Assert.Throws<RestClientConfigurationException>(() => SUT.Build());
         }
     }
 }

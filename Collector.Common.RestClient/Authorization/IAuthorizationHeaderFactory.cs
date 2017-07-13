@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient.Interfaces
+namespace Collector.Common.RestClient.Authorization
 {
     public interface IAuthorizationHeaderFactory
     {
@@ -13,6 +13,6 @@ namespace Collector.Common.RestClient.Interfaces
         /// </summary>
         /// <param name="restAuthorizeRequestData">The request data to build Authorization for.</param>
         /// <returns></returns>
-        string Get(IRestAuthorizeRequestData restAuthorizeRequestData);
+        string Get(RestAuthorizeRequestData restAuthorizeRequestData);
     }
 }

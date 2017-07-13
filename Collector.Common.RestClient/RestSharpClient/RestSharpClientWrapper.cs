@@ -4,15 +4,15 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient.Implementation
+namespace Collector.Common.RestClient.RestSharpClient
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
 
+    using Collector.Common.RestClient.Authorization;
     using Collector.Common.RestClient.Exceptions;
-    using Collector.Common.RestClient.Interfaces;
     using Collector.Common.RestContracts.Interfaces;
 
     using Newtonsoft.Json;
@@ -42,7 +42,7 @@ namespace Collector.Common.RestClient.Implementation
         {
             if (!_baseUrlMappings.ContainsKey(contractKey))
             {
-                throw new BuildException($"No mapping found for contract identifier : {contractKey}");
+                throw new RestClientConfigurationException($"No mapping found for contract identifier : {contractKey}");
             }
 
             IAuthenticator authenticator = null;
