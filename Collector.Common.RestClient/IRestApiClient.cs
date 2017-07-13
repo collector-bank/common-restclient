@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient.Interfaces
+namespace Collector.Common.RestClient
 {
     using System.Threading.Tasks;
 
@@ -22,8 +22,7 @@ namespace Collector.Common.RestClient.Interfaces
         /// The requested data.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if request is null.</exception>
-        /// <exception cref="RequestValidationException">Thrown if request is invalid.</exception>
-        /// <exception cref="RestApiException">Thrown if response is not OK or contains RestError.</exception>
+        /// <exception cref="RestClientCallException">Thrown if response is not OK or contains RestError.</exception>
         Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier;
 
         /// <summary>
@@ -36,8 +35,7 @@ namespace Collector.Common.RestClient.Interfaces
         /// The requested data.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if request is null.</exception>
-        /// <exception cref="RequestValidationException">Thrown if request is invalid.</exception>
-        /// <exception cref="RestApiException">Thrown if response is not OK or contains RestError.</exception>
+        /// <exception cref="RestClientCallException">Thrown if response is not OK or contains RestError.</exception>
         Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request) where TResourceIdentifier : class, IResourceIdentifier;
     }
 }

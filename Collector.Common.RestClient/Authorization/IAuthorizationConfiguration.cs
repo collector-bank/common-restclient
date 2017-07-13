@@ -1,18 +1,14 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="BuildException.cs" company="Collector AB">
+// <copyright file="IAuthorizationConfiguration.cs" company="Collector AB">
 //   Copyright © Collector AB. All rights reserved.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
-
-namespace Collector.Common.RestClient.Exceptions
+namespace Collector.Common.RestClient.Authorization
 {
-    using System;
+    using Serilog;
 
-    public class BuildException : Exception
+    public interface IAuthorizationConfiguration
     {
-        public BuildException(string message)
-            : base(message)
-        {
-        }
+        IAuthorizationHeaderFactory CreateFactory(ILogger logger);
     }
 }

@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient.Interfaces
+namespace Collector.Common.RestClient.RestSharpClient
 {
     using System;
 

@@ -4,14 +4,14 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Collector.Common.RestClient.Implementation
+namespace Collector.Common.RestClient
 {
     using System;
     using System.Linq;
+    using System.Net;
     using System.Threading.Tasks;
 
     using Collector.Common.RestClient.Exceptions;
-    using Collector.Common.RestClient.Interfaces;
     using Collector.Common.RestContracts;
     using Collector.Common.RestContracts.Interfaces;
 
@@ -46,7 +46,7 @@ namespace Collector.Common.RestClient.Implementation
         {
             var errorInfos = request.GetValidationErrors().ToList();
             if (errorInfos != null && errorInfos.Any())
-                throw new RequestValidationException(errorInfos);
+                throw new RestClientCallException(HttpStatusCode.BadRequest, errorInfos);
         }
     }
 }
