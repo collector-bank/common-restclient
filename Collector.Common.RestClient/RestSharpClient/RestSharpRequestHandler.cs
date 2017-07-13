@@ -113,6 +113,14 @@ namespace Collector.Common.RestClient.RestSharpClient
                 {
                     try
                     {
+                        if (response.StatusCode == 0)
+                        {
+                            taskCompletionSource.SetException(new RestClientCallException(
+                                httpStatusCode: response.StatusCode,
+                                message: "No response from server"));
+                            return;
+                        }
+
                         var result = JsonConvert.DeserializeObject<Response<TResponse>>(response.Content);
 
                         if (result.Error != null)
