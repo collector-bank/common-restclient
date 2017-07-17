@@ -152,7 +152,7 @@ namespace Collector.Common.RestClient.RestSharpClient
                 taskCompletionSource.SetException(
                     new RestClientCallException(
                         httpStatusCode: response.StatusCode,
-                        message: "An error occured while reading the response.",
+                        message: "An error occurred while reading the response.",
                         innerException: ex));
             }
         }
