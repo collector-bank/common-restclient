@@ -7,6 +7,7 @@
 namespace Collector.Common.RestClient.RestSharpClient
 {
     using System;
+    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
@@ -36,7 +37,6 @@ namespace Collector.Common.RestClient.RestSharpClient
         /// The requested data.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if request is null.</exception>
-        /// <exception cref="RequestValidationException">Thrown if request is invalid.</exception>
         /// <exception cref="RestClientCallException">Thrown if response is not OK or contains RestError.</exception>
         public async Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request)
             where TResourceIdentifier : class, IResourceIdentifier
@@ -56,10 +56,10 @@ namespace Collector.Common.RestClient.RestSharpClient
         /// The requested data.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if request is null.</exception>
-        /// <exception cref="RequestValidationException">Thrown if request is invalid.</exception>
         /// <exception cref="RestClientCallException">Thrown if response is not OK or contains RestError.</exception>
         public async Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request)
-            where TResourceIdentifier : class, IResourceIdentifier
+            where TResourceIdentifier : class, IResourceIdentifier 
+            where TResponse : class
         {
             var restRequest = CreateRestRequest(request);
 
@@ -102,65 +102,61 @@ namespace Collector.Common.RestClient.RestSharpClient
             return (Method)Enum.Parse(typeof(Method), method.ToString());
         }
 
-        private Task<TResponse> GetResponseAsync<TResponse>(IRestRequest restRequest, IRequest request) 
+        private Task<TResponse> GetResponseAsync<TResponse>(IRestRequest restRequest, IRequest request) where TResponse : class
         {
             var taskCompletionSource = new TaskCompletionSource<TResponse>();
 
             _client.ExecuteAsync(
                 restRequest,
                 request,
-                response =>
-                {
-                    try
-                    {
-                        if (response.StatusCode == 0)
-                        {
-                            taskCompletionSource.SetException(new RestClientCallException(
-                                httpStatusCode: response.StatusCode,
-                                message: "No response from server"));
-                            return;
-                        }
-
-                        var result = JsonConvert.DeserializeObject<Response<TResponse>>(response.Content);
-
-                        if (result.Error != null)
-                        {
-                            taskCompletionSource.SetException(new RestClientCallException(response.StatusCode, result.Error));
-                        }
-                        else if (IsSuccessStatusCode(response))
-                        {
-                            taskCompletionSource.SetResult(result.Data);
-                        }
-                        else
-                        {
-                            taskCompletionSource.SetException(new RestClientCallException(
-                                httpStatusCode: response.StatusCode,
-                                message: $"Rest request not successful, {response.StatusCode}"));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        taskCompletionSource.SetException(new RestClientCallException(
-                             httpStatusCode: response.StatusCode,
-                             restError: new Error
-                             {
-                                 Message = "Failed to deserialize message.",
-                                 Code = response.StatusCode.ToString(),
-                                 Errors = new[]
-                                          {
-                                              new ErrorInfo
-                                              {
-                                                Reason   = ex.GetType().Name,
-                                                Message = ex.Message
-                                              } 
-                                          }
-                             }));
-                    }
-                });
+                response => Callback(response, taskCompletionSource));
 
             return taskCompletionSource.Task;
         }
 
-        public bool IsSuccessStatusCode(IRestResponse response) => (response.StatusCode >= HttpStatusCode.OK) && (response.StatusCode <= (HttpStatusCode)299);
+        private void Callback<TResponse>(IRestResponse response, TaskCompletionSource<TResponse> taskCompletionSource)
+            where TResponse : class
+        {
+            try
+            {
+                if (response.StatusCode == 0)
+                {
+                    taskCompletionSource.SetException(new RestClientCallException(response.StatusCode, "No response from server"));
+                    return;
+                }
+
+                if (!IsSuccessStatusCode(response))
+                {
+                    var errorResponse = JsonConvert.DeserializeObject<Response<TResponse>>(response.Content);
+                    if (errorResponse.Error == null)
+                    {
+                        taskCompletionSource.SetException(new RestClientCallException(response.StatusCode, $"Rest request not successful, {response.StatusCode}"));
+                        return;
+                    }
+
+                    taskCompletionSource.SetException(new RestClientCallException(httpStatusCode: response.StatusCode, restError: errorResponse.Error));
+                    return;
+                }
+
+                if (typeof(TResponse) == typeof(Stream))
+                {
+                    taskCompletionSource.SetResult(new MemoryStream(response.RawBytes) as TResponse);
+                    return;
+                }
+
+                var result = JsonConvert.DeserializeObject<Response<TResponse>>(response.Content);
+                taskCompletionSource.SetResult(result.Data);
+            }
+            catch (Exception ex)
+            {
+                taskCompletionSource.SetException(
+                    new RestClientCallException(
+                        httpStatusCode: response.StatusCode,
+                        message: "An error occurred while reading the response.",
+                        innerException: ex));
+            }
+        }
+
+        private bool IsSuccessStatusCode(IRestResponse response) => (response.StatusCode >= HttpStatusCode.OK) && (response.StatusCode <= (HttpStatusCode)299);
     }
 }

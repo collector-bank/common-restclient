@@ -26,14 +26,17 @@ namespace Collector.Common.RestClient
             _contexFunc = contexFunc;
         }
 
-        public Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier
+        public Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) 
+            where TResourceIdentifier : class, IResourceIdentifier
         {
             request.Context = request.Context ?? _contexFunc?.Invoke();
             EnsureRequestObjectIsValid(request);
             return _requestHandler.CallAsync(request);
         }
 
-        public async Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request) where TResourceIdentifier : class, IResourceIdentifier
+        public async Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request) 
+            where TResourceIdentifier : class, IResourceIdentifier
+            where TResponse : class
         {
             request.Context = request.Context ?? _contexFunc?.Invoke();
             EnsureRequestObjectIsValid(request);

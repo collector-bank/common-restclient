@@ -7,8 +7,7 @@
 namespace Collector.Common.RestClient
 {
     using System.Threading.Tasks;
-
-    using Collector.Common.RestClient.Exceptions;
+    
     using Collector.Common.RestContracts;
     using Collector.Common.RestContracts.Interfaces;
 
@@ -22,8 +21,9 @@ namespace Collector.Common.RestClient
         /// The requested data.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if request is null.</exception>
-        /// <exception cref="RestClientCallException">Thrown if response is not OK or contains RestError.</exception>
-        Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier;
+        /// <exception cref="Exceptions.RestClientCallException">Thrown if response is not OK or contains RestError.</exception>
+        Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) 
+            where TResourceIdentifier : class, IResourceIdentifier;
 
         /// <summary>
         /// Gets the data asynchronously for the specified request. Throws exception if the call is unsuccessful.
@@ -35,7 +35,9 @@ namespace Collector.Common.RestClient
         /// The requested data.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">Thrown if request is null.</exception>
-        /// <exception cref="RestClientCallException">Thrown if response is not OK or contains RestError.</exception>
-        Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request) where TResourceIdentifier : class, IResourceIdentifier;
+        /// <exception cref="Exceptions.RestClientCallException">Thrown if response is not OK or contains RestError.</exception>
+        Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request) 
+            where TResourceIdentifier : class, IResourceIdentifier
+            where TResponse : class;
     }
 }
