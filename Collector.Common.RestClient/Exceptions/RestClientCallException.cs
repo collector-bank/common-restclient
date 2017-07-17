@@ -22,10 +22,11 @@ namespace Collector.Common.RestClient.Exceptions
         /// </summary>
         /// <param name="httpStatusCode"></param>
         /// <param name="message">The message.</param>
-        public RestClientCallException(HttpStatusCode httpStatusCode, string message)
-            : base(message: message)
+        public RestClientCallException(HttpStatusCode httpStatusCode, string message, Exception innerException = null)
+            : base(message: message, innerException: innerException)
         {
             HttpStatusCode = httpStatusCode;
+            Error = new Error($"{(int)httpStatusCode}", httpStatusCode.ToString());
         }
 
         /// <summary>

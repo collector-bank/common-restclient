@@ -14,7 +14,8 @@ namespace Collector.Common.RestClient
     internal interface IRequestHandler
     {
         Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request)
-            where TResourceIdentifier : class, IResourceIdentifier;
+            where TResourceIdentifier : class, IResourceIdentifier
+            where TResponse : class;
 
         Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request)
             where TResourceIdentifier : class, IResourceIdentifier;
