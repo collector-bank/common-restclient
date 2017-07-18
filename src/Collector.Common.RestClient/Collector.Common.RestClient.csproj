@@ -3,9 +3,8 @@
 		<TargetFrameworks>net45</TargetFrameworks>
 		<AssemblyName>Collector.Common.RestClient</AssemblyName>
 		<PackageId>Collector.Common.RestClient</PackageId>
-		<GenerateAssemblyConfigurationAttribute>true</GenerateAssemblyConfigurationAttribute>
-		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+	  <Company>Collector Bank AB</Company>
+	  <Product>Collector.Common.RestClient</Product>
 		<Version>10.0.0</Version>
 		<Description>Rest API client to use with RestContracts and RestApi</Description>
 		<Authors>Team Houdini, Team Heimdal</Authors>
