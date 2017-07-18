@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>    
+    <TargetFrameworks>net45</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Collector.Common.RestClient\Collector.Common.RestClient.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{FF257B49-05AC-40A3-975E-FD5C021B4A0A}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoFixture" Version="3.50.3" />
+    <PackageReference Include="NUnit" Version="2.6.4" />
+    <PackageReference Include="RhinoMocks" Version="3.6.1" />
+  </ItemGroup>
+</Project>
