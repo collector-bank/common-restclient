@@ -108,15 +108,16 @@
         {
             try
             {
-                var formattedResponseContent = GetFormatedResponseContent(response);
+                var isJsonResponse = response.ContentType?.ToLower().Contains("application/json") ?? false;
                 var restClientLogProperty = new
                                             {
                                                 HttpRequestUrl = response.ResponseUri,
                                                 HttpRequestType = restRequest.Method,
                                                 StatusCode = (int)response.StatusCode,
+                                                MediaType = response.ContentType,
                                                 ResponseTimeMilliseconds = (int)stopwatch.ElapsedMilliseconds,
-                                                RawResponseBody = response.Content,
-                                                ResponseBody = formattedResponseContent
+                                                RawResponseBody = isJsonResponse ? response.Content : "Response not in json format",
+                                                ResponseBody = isJsonResponse ? GetFormatedResponseContent(response) : "Response not in json format"
                                             };
 
                 _logger?.ForContext("RestClient", restClientLogProperty, destructureObjects: true)
