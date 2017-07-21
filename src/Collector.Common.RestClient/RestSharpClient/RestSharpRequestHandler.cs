@@ -84,7 +84,10 @@
 
         private static RestRequest CreateRestRequest<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier
         {
-            var restRequest = new RestRequest(request.GetResourceIdentifier().Uri, GetMethod(request.GetHttpMethod()));
+            var restRequest = new RestRequest(request.GetResourceIdentifier().Uri, GetMethod(request.GetHttpMethod()))
+                              {
+                                  JsonSerializer = new NewtonsoftJsonSerializer()
+                              };
 
             AddParametersFromRequest(restRequest, request);
 
@@ -122,7 +125,7 @@
                 if (!IsSuccessStatusCode(response))
                 {
                     var errorResponse = JsonConvert.DeserializeObject<Response<TResponse>>(response.Content);
-                    if (errorResponse.Error == null)
+                    if (errorResponse?.Error == null)
                     {
                         taskCompletionSource.SetException(new RestClientCallException(response.StatusCode, $"Rest request not successful, {response.StatusCode}"));
                         return;
