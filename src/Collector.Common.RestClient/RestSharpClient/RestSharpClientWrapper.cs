@@ -76,7 +76,7 @@
                 response =>
                 {
                     stopwatch.Stop();
-                    TryLogResponse(restRequest, stopwatch, response);
+                    TryLogResponse(restRequest, stopwatch, response, request);
 
                     callback(response);
                 });
@@ -96,7 +96,7 @@
                                             };
 
                 _logger?.ForContext("RestClient", restClientLogProperty, destructureObjects: true)
-                       ?.Information("Rest request sent");
+                       ?.Information("Rest request sent to {ConfigurationKey}", request.GetConfigurationKey());
             }
             catch (Exception e)
             {
@@ -104,7 +104,7 @@
             }
         }
 
-        private void TryLogResponse(IRestRequest restRequest, Stopwatch stopwatch, IRestResponse response)
+        private void TryLogResponse(IRestRequest restRequest, Stopwatch stopwatch, IRestResponse response, IRequest request)
         {
             try
             {
@@ -121,7 +121,7 @@
                                             };
 
                 _logger?.ForContext("RestClient", restClientLogProperty, destructureObjects: true)
-                       ?.Information("Rest response recieved");
+                       ?.Information("Rest response recieved from {ConfigurationKey}", request.GetConfigurationKey());
             }
             catch (Exception e)
             {
