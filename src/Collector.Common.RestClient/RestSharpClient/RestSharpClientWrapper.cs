@@ -13,46 +13,44 @@
     using Newtonsoft.Json.Linq;
 
     using RestSharp;
-    using RestSharp.Authenticators;
 
     using Serilog;
 
     internal sealed class RestSharpClientWrapper : IRestSharpClientWrapper
     {
-        private readonly IDictionary<string, string> _baseUrlMappings;
+        internal readonly ConcurrentDictionary<string, IRestClient> RestClients = new ConcurrentDictionary<string, IRestClient>();
+        private readonly IDictionary<string, Uri> _baseUrlMappings;
         private readonly IDictionary<string, IAuthorizationHeaderFactory> _authorizationHeaderFactories;
+        private readonly IDictionary<string, TimeSpan> _timeouts;
         private readonly ILogger _logger;
 
-        internal readonly ConcurrentDictionary<string, IRestClient> RestClients = new ConcurrentDictionary<string, IRestClient>();
-
-        public RestSharpClientWrapper(IDictionary<string, string> baseUrlMappings, IDictionary<string, IAuthorizationHeaderFactory> authorizationHeaderFactories, ILogger logger)
+        public RestSharpClientWrapper(
+            IDictionary<string, Uri> baseUrlMappings, 
+            IDictionary<string, IAuthorizationHeaderFactory> authorizationHeaderFactories,
+            IDictionary<string, TimeSpan> timeouts,
+            ILogger logger)
         {
             _baseUrlMappings = baseUrlMappings;
             _authorizationHeaderFactories = authorizationHeaderFactories;
+            _timeouts = timeouts;
             _logger = logger?.ForContext(GetType());
         }
 
-        internal void InitRestClient(string contractKey)
+        public void InitRestClient(string contractKey)
         {
             if (!_baseUrlMappings.ContainsKey(contractKey))
-            {
                 throw new RestClientConfigurationException($"No mapping found for contract identifier : {contractKey}");
-            }
-
-            IAuthenticator authenticator = null;
-
-            if (_authorizationHeaderFactories.ContainsKey(contractKey))
-            {
-                authenticator = new RestSharpAuthenticator(_authorizationHeaderFactories[contractKey]);
-            }
-
-            var baseUrl = _baseUrlMappings[contractKey];
 
             var client = new RestClient
                          {
-                             BaseUrl = new Uri(baseUrl),
-                             Authenticator = authenticator
+                             BaseUrl = _baseUrlMappings[contractKey],
                          };
+
+            if (_authorizationHeaderFactories.ContainsKey(contractKey))
+                client.Authenticator = new RestSharpAuthenticator(_authorizationHeaderFactories[contractKey]);
+
+            if (_authorizationHeaderFactories.ContainsKey(contractKey))
+                client.Timeout = (int)_timeouts[contractKey].TotalMilliseconds;
 
             RestClients.TryAdd(contractKey, client);
         }
