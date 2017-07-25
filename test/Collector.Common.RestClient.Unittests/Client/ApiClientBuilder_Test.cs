@@ -31,9 +31,9 @@
         public void When_api_builder_is_configured_with_contract_it_will_contain_the_contract()
         {
             var contract = _fixture.Create<string>();
-            var endpoint = _fixture.Create<string>();
+            var endpoint = _fixture.Create<Uri>();
 
-            var builder = _sut.ConfigureContractByKey(contract, endpoint);
+            var builder = _sut.ConfigureContractByKey(contract, endpoint.ToString());
 
             CollectionAssert.Contains(builder.BaseUris.Keys, contract);
         }
@@ -42,9 +42,9 @@
         public void When_api_builder_is_configured_with_contract_it_will_contain_the_base_uri()
         {
             var contract = _fixture.Create<string>();
-            var endpoint = _fixture.Create<string>();
+            var endpoint = _fixture.Create<Uri>();
 
-            var builder = _sut.ConfigureContractByKey(contract, endpoint);
+            var builder = _sut.ConfigureContractByKey(contract, endpoint.ToString());
 
             Assert.AreEqual(endpoint, builder.BaseUris[contract]);
         }
@@ -54,13 +54,13 @@
         public void When_configure_the_contract_multiple_times_it_will_throw_exception()
         {
             var contract = _fixture.Create<string>();
-            var endpoint = _fixture.Create<string>();
+            var endpoint = _fixture.Create<Uri>();
 
 
             Assert.Throws<RestClientConfigurationException>(() =>
                                           {
-                                              _sut.ConfigureContractByKey(contract, endpoint)
-                                                  .ConfigureContractByKey(contract, endpoint);
+                                              _sut.ConfigureContractByKey(contract, endpoint.ToString())
+                                                  .ConfigureContractByKey(contract, endpoint.ToString());
                                           });
         }
 
@@ -79,13 +79,13 @@
         public void When_api_builder_is_configured_with_authenticator_it_will_hold_the_authenticator()
         {
             var contract = _fixture.Create<string>();
-            var endpoint = _fixture.Create<string>();
+            var endpoint = _fixture.Create<Uri>();
             var authorizationConfiguration = MockRepository.GenerateMock<IAuthorizationConfiguration> ();
 
             var reqStub = MockRepository.GenerateMock<IRestRequest>();
             reqStub.Stub(x => x.Parameters).Return(new List<Parameter>());
 
-            var builder = _sut.ConfigureContractByKey(contract, endpoint, authorizationConfiguration);
+            var builder = _sut.ConfigureContractByKey(contract, endpoint.ToString(), authorizationConfiguration);
 
             var configuredAuthorizationHeaderFactory = builder.Authenticators[contract];
 
