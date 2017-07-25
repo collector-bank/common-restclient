@@ -12,8 +12,9 @@
 
     public class ApiClientBuilder
     {
-        internal readonly IDictionary<string, string> BaseUris = new Dictionary<string, string>();
+        internal readonly IDictionary<string, Uri> BaseUris = new Dictionary<string, Uri>();
         internal readonly IDictionary<string, IAuthorizationConfiguration> Authenticators = new Dictionary<string, IAuthorizationConfiguration>();
+        internal readonly IDictionary<string, TimeSpan> Timeouts = new Dictionary<string, TimeSpan>();
 
         private ILogger _logger;
         private Func<string> _contextFunc;
@@ -32,7 +33,7 @@
             if (BaseUris.ContainsKey(contractKey))
                 throw new RestClientConfigurationException($"{contractKey} has already been configured.");
 
-            BaseUris.Add(contractKey, baseUrl);
+            BaseUris.Add(contractKey, new Uri(baseUrl));
 
             if (authorizationConfiguration != null)
             {
@@ -55,7 +56,7 @@
             if (BaseUris.ContainsKey(contractKey))
                 throw new RestClientConfigurationException($"{contractKey} has already been configured.");
 
-            BaseUris.Add(contractKey, ConfigReader.GetAndEnsureValueFromAppSettingsKey($"{contractKey}.BaseUrl"));
+            BaseUris.Add(contractKey, new Uri(ConfigReader.GetAndEnsureValueFromAppSettingsKey($"{contractKey}.BaseUrl")));
 
             var authentication = ConfigReader.GetValueFromAppSettingsKey(contractKey, "Authentication");
 
@@ -64,8 +65,12 @@
                 if (authentication.ToLower() == "oauth2")
                     Authenticators.Add(contractKey, new Oauth2AuthorizationConfiguration(contractKey));
                 else
-                    throw new NotSupportedException($"Authentication method '{authentication}' is not supported.");
+                    throw new RestClientConfigurationException($"Authentication method '{authentication}' is not supported.");
             }
+
+            var timeout = ConfigReader.GetTimeSpanValueFromAppSettingsKey(contractKey, "Timeout");
+            if (timeout.HasValue)
+                Timeouts[contractKey] = timeout.Value;
 
             return this;
         }
@@ -101,7 +106,7 @@
                 kvp => kvp.Key,
                 kvp => kvp.Value.CreateFactory(_logger));
 
-            var wrapper = new RestSharpClientWrapper(BaseUris, authorizationHeaderFactories, _logger);
+            var wrapper = new RestSharpClientWrapper(BaseUris, authorizationHeaderFactories, Timeouts, _logger);
 
             var requestHandler = new RestSharpRequestHandler(wrapper);
 
