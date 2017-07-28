@@ -49,7 +49,7 @@
             if (_authorizationHeaderFactories.ContainsKey(contractKey))
                 client.Authenticator = new RestSharpAuthenticator(_authorizationHeaderFactories[contractKey]);
 
-            if (_authorizationHeaderFactories.ContainsKey(contractKey))
+            if (_timeouts.ContainsKey(contractKey))
                 client.Timeout = (int)_timeouts[contractKey].TotalMilliseconds;
 
             RestClients.TryAdd(contractKey, client);
