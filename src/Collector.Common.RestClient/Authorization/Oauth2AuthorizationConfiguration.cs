@@ -2,8 +2,10 @@
 {
     using System;
 
-    using Serilog;
+    using Collector.Common.RestClient.Configuration;
 
+    using Serilog;
+    
     public class Oauth2AuthorizationConfiguration : IAuthorizationConfiguration
     {
         internal string Issuer { get; }
@@ -28,13 +30,13 @@
             Issuer = issuer;
         }
 
-        internal Oauth2AuthorizationConfiguration(string contractKey)
+        internal Oauth2AuthorizationConfiguration(IConfigReader configReader)
         {
-            Audience = ConfigReader.GetAndEnsureValueFromAppSettingsKey($"{contractKey}.Audience");
+            Audience = configReader.GetAndEnsureString("Audience", onlyFromSubSection: true);
 
-            Issuer = ConfigReader.GetAndEnsureValueFromAppSettingsKey(contractKey, "Issuer");
-            ClientId = ConfigReader.GetAndEnsureValueFromAppSettingsKey(contractKey, "ClientId");
-            ClientSecret = ConfigReader.GetAndEnsureValueFromAppSettingsKey(contractKey, "ClientSecret");
+            Issuer = configReader.GetAndEnsureString("Issuer");
+            ClientId = configReader.GetAndEnsureString("ClientId");
+            ClientSecret = configReader.GetAndEnsureString("ClientSecret");
         }
 
         public IAuthorizationHeaderFactory CreateFactory(ILogger logger)

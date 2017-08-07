@@ -2,11 +2,15 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Linq;
 
     using Collector.Common.RestClient.Authorization;
+    using Collector.Common.RestClient.Configuration;
     using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.RestSharpClient;
+
+    using Microsoft.Extensions.Configuration;
 
     using Serilog;
 
@@ -43,34 +47,29 @@
             return this;
         }
 
-
         /// <summary>
-        /// Configure the IRestApiClient using app config values for the specified RestContract key
+        /// Configure the IRestApiClient using app config values.
         /// </summary>
-        /// <param name="contractKey">The key which identifies requests for contracts</param>
-        public ApiClientBuilder ConfigureContractKeyFromAppSettings(string contractKey)
+        public ApiClientBuilder ConfigureFromAppSettings()
         {
-            if (string.IsNullOrEmpty(contractKey))
-                throw new ArgumentNullException(nameof(contractKey));
-
-            if (BaseUris.ContainsKey(contractKey))
-                throw new RestClientConfigurationException($"{contractKey} has already been configured.");
-
-            BaseUris.Add(contractKey, new Uri(ConfigReader.GetAndEnsureValueFromAppSettingsKey($"{contractKey}.BaseUrl")));
-
-            var authentication = ConfigReader.GetValueFromAppSettingsKey(contractKey, "Authentication");
-
-            if (!string.IsNullOrEmpty(authentication))
+            foreach (var baseUrlSetting in ConfigurationManager.AppSettings.AllKeys.Where(k => k.StartsWith("RestClient:")).Where(k => k.EndsWith(".BaseUrl")))
             {
-                if (authentication.ToLower() == "oauth2")
-                    Authenticators.Add(contractKey, new Oauth2AuthorizationConfiguration(contractKey));
-                else
-                    throw new RestClientConfigurationException($"Authentication method '{authentication}' is not supported.");
+                var contractKey = baseUrlSetting.Split(':').Last().Split('.').First();
+                ConfigureContractKey(contractKey, new AppConfigReader(contractKey));
             }
 
-            var timeout = ConfigReader.GetTimeSpanValueFromAppSettingsKey(contractKey, "Timeout");
-            if (timeout.HasValue)
-                Timeouts[contractKey] = timeout.Value;
+            return this;
+        }
+
+        /// <summary>
+        /// Configure the IRestApiClient using a configuration section.
+        /// </summary>
+        public ApiClientBuilder ConfigureFromConfigSection(IConfigurationSection configurationSection)
+        {
+            foreach (var subSection in configurationSection.GetSection("Apis").GetChildren())
+            {
+                ConfigureContractKey(subSection.Key, new SectionConfigReader(configurationSection, subSection));
+            }
 
             return this;
         }
@@ -85,7 +84,7 @@
         /// Configures serilog for all requests made by the IRestApiClient that's beeing built
         /// </summary>
         /// <param name="logger">Configured ILogger</param>
-        public ApiClientBuilder ConfigureLogging(ILogger logger)
+        public ApiClientBuilder WithLogger(ILogger logger)
         {
             _logger = logger;
             return this;
@@ -111,6 +110,25 @@
             var requestHandler = new RestSharpRequestHandler(wrapper);
 
             return new RestApiClient(requestHandler, _contextFunc);
+        }
+
+        private void ConfigureContractKey(string contractKey, IConfigReader configReader)
+        {
+            BaseUris.Add(contractKey, new Uri(configReader.GetAndEnsureString("BaseUrl", onlyFromSubSection: true)));
+
+            var authentication = configReader.GetString("Authentication");
+
+            if (!string.IsNullOrEmpty(authentication))
+            {
+                if (authentication.ToLower() == "oauth2")
+                    Authenticators.Add(contractKey, new Oauth2AuthorizationConfiguration(configReader));
+                else
+                    throw new RestClientConfigurationException($"Authentication method '{authentication}' is not supported.");
+            }
+
+            var timeout = configReader.GetTimeSpan("Timeout");
+            if (timeout.HasValue)
+                Timeouts[contractKey] = timeout.Value;
         }
     }
 }
