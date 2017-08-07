@@ -24,7 +24,7 @@
         public Oauth2AuthorizationHeaderFactory(Oauth2AuthorizationConfiguration configuration, ILogger logger)
         {
             _configuration = configuration;
-            _logger = logger.ForContext(GetType());
+            _logger = logger?.ForContext(GetType());
         }
 
         public string Get(RestAuthorizeRequestData restAuthorizeRequestData)
