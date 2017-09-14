@@ -35,7 +35,7 @@
         {
             var restRequest = CreateRestRequest(request);
 
-            await GetResponseAsync<object>(restRequest, request);
+            await GetResponseAsync<object>(restRequest, request).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@
         {
             var restRequest = CreateRestRequest(request);
 
-            return await GetResponseAsync<TResponse>(restRequest, request);
+            return await GetResponseAsync<TResponse>(restRequest, request).ConfigureAwait(false);
         }
 
         private static void AddParametersFromRequest(IRestRequest restRequest, object request)
