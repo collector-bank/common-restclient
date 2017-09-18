@@ -34,7 +34,7 @@
         {
             request.Context = request.Context ?? _contexFunc?.Invoke();
             EnsureRequestObjectIsValid(request);
-            var response = await _requestHandler.CallAsync(request);
+            var response = await _requestHandler.CallAsync(request).ConfigureAwait(false);
             
             return response;
         }
