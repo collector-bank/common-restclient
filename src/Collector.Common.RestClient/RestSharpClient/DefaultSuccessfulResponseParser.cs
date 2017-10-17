@@ -7,6 +7,14 @@
 
     internal class DefaultSuccessfulResponseParser<TResponse> : ISuccessfulResponseParser<TResponse>
     {
-        public TResponse ParseResponse(string content) => JsonConvert.DeserializeObject<Response<TResponse>>(content).Data;
+        public TResponse ParseResponse(string content)
+        {
+            var settings = new JsonSerializerSettings
+                           {
+                                DateTimeZoneHandling = DateTimeZoneHandling.RoundtripKind,
+                                DateParseHandling = DateParseHandling.DateTimeOffset
+                           };
+            return JsonConvert.DeserializeObject<Response<TResponse>>(content, settings).Data;
+        }
     }
 }
