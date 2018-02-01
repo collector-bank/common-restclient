@@ -4,12 +4,14 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
+    using System.Web;
 
     using Collector.Common.RestClient.Exceptions;
 
     using Newtonsoft.Json;
 
     using RestSharp;
+    using RestSharp.Extensions.MonoHttp;
 
     using Serilog;
 
@@ -46,7 +48,7 @@
             var client = new RestClient(_configuration.Issuer);
             var request = new RestRequest(Method.POST);
             request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
-            request.AddHeader("Accept", "application/json");
+            request.AddHeader("Accept", "application/jwt, application/json");
 
             var requestBodyParameters = new Dictionary<string, string>
                              {
@@ -56,7 +58,12 @@
                                  ["grant_type"] = "client_credentials"
                              };
 
-            var requestBody = string.Join("&", requestBodyParameters.Select(kvp => $"{kvp.Key}={kvp.Value}"));
+            if (!string.IsNullOrWhiteSpace(_configuration.Scopes))
+            {
+                requestBodyParameters.Add("scope", _configuration.Scopes);
+            }
+
+            var requestBody = string.Join("&", requestBodyParameters.Select(kvp => $"{kvp.Key}={HttpUtility.UrlEncode(kvp.Value)}"));
 
             request.AddParameter("application/x-www-form-urlencoded", requestBody, ParameterType.RequestBody);
             
