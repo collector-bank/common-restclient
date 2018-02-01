@@ -46,7 +46,7 @@
             var client = new RestClient(_configuration.Issuer);
             var request = new RestRequest(Method.POST);
             request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
-            request.AddHeader("Accept", "application/json");
+            request.AddHeader("Accept", "application/jwt, application/json");
 
             var requestBodyParameters = new Dictionary<string, string>
                              {
@@ -56,7 +56,12 @@
                                  ["grant_type"] = "client_credentials"
                              };
 
-            var requestBody = string.Join("&", requestBodyParameters.Select(kvp => $"{kvp.Key}={kvp.Value}"));
+            if (!string.IsNullOrWhiteSpace(_configuration.Scopes))
+            {
+                requestBodyParameters.Add("scope", _configuration.Scopes);
+            }
+
+            var requestBody = string.Join("&", requestBodyParameters.Select(kvp => $"{kvp.Key}={WebUtility.UrlEncode(kvp.Value)}"));
 
             request.AddParameter("application/x-www-form-urlencoded", requestBody, ParameterType.RequestBody);
             
