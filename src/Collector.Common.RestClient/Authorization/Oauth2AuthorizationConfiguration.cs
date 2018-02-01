@@ -12,8 +12,9 @@
         internal string ClientId { get; }
         internal string ClientSecret { get; }
         internal string Audience { get; }
+        internal string Scopes { get; set; }
 
-        public Oauth2AuthorizationConfiguration(string clientId, string clientSecret, string audience, string issuer)
+        public Oauth2AuthorizationConfiguration(string clientId, string clientSecret, string audience, string issuer, string scopes)
         {
             if (string.IsNullOrEmpty(clientId))
                 throw new ArgumentNullException(nameof(clientId));
@@ -28,15 +29,16 @@
             ClientSecret = clientSecret;
             Audience = audience;
             Issuer = issuer;
+            Scopes = scopes;
         }
 
         internal Oauth2AuthorizationConfiguration(IConfigReader configReader)
         {
             Audience = configReader.GetAndEnsureString("Audience", onlyFromSubSection: true);
-
             Issuer = configReader.GetAndEnsureString("Issuer");
             ClientId = configReader.GetAndEnsureString("ClientId");
             ClientSecret = configReader.GetAndEnsureString("ClientSecret");
+            Scopes = configReader.GetString("Scopes");
         }
 
         public IAuthorizationHeaderFactory CreateFactory(ILogger logger)

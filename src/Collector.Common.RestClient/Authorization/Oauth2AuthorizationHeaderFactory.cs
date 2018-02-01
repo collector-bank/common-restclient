@@ -10,6 +10,7 @@
     using Newtonsoft.Json;
 
     using RestSharp;
+    using RestSharp.Extensions.MonoHttp;
 
     using Serilog;
 
@@ -46,17 +47,22 @@
             var client = new RestClient(_configuration.Issuer);
             var request = new RestRequest(Method.POST);
             request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
-            request.AddHeader("Accept", "application/json");
+            request.AddHeader("Accept", "application/jwt, application/json");
 
             var requestBodyParameters = new Dictionary<string, string>
                              {
                                  ["client_id"] = _configuration.ClientId,
                                  ["client_secret"] = _configuration.ClientSecret,
                                  ["audience"] = _configuration.Audience,
-                                 ["grant_type"] = "client_credentials"
-                             };
+                                 ["grant_type"] = "client_credentials",
+            };
 
-            var requestBody = string.Join("&", requestBodyParameters.Select(kvp => $"{kvp.Key}={kvp.Value}"));
+            if (!string.IsNullOrWhiteSpace(_configuration.Scopes))
+            {
+                requestBodyParameters.Add("scope", _configuration.Scopes);
+            }
+
+            var requestBody = string.Join("&", requestBodyParameters.Select(kvp => $"{kvp.Key}={HttpUtility.UrlEncode(kvp.Value)}"));
 
             request.AddParameter("application/x-www-form-urlencoded", requestBody, ParameterType.RequestBody);
             

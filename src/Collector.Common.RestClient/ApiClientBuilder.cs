@@ -98,7 +98,7 @@
         {
             if (!BaseUris.Any())
             {
-                throw new RestClientConfigurationException("Please configure atleast one base uri");
+                throw new RestClientConfigurationException("Please configure at least one base uri");
             }
 
             var authorizationHeaderFactories = Authenticators.ToDictionary(
