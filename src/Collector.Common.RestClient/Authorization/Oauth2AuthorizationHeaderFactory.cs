@@ -10,7 +10,6 @@
     using Newtonsoft.Json;
 
     using RestSharp;
-    using RestSharp.Extensions.MonoHttp;
 
     using Serilog;
 
@@ -62,7 +61,7 @@
                 requestBodyParameters.Add("scope", _configuration.Scopes);
             }
 
-            var requestBody = string.Join("&", requestBodyParameters.Select(kvp => $"{kvp.Key}={HttpUtility.UrlEncode(kvp.Value)}"));
+            var requestBody = string.Join("&", requestBodyParameters.Select(kvp => $"{kvp.Key}={WebUtility.UrlEncode(kvp.Value)}"));
 
             request.AddParameter("application/x-www-form-urlencoded", requestBody, ParameterType.RequestBody);
             
