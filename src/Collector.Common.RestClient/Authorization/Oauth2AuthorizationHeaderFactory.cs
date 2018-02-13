@@ -19,6 +19,7 @@
         private readonly ILogger _logger;
         private string _token;
         private DateTimeOffset _expiration;
+        private DateTimeOffset _expirationWithGracePeriod;
         private string _tokenType;
 
         public Oauth2AuthorizationHeaderFactory(Oauth2AuthorizationConfiguration configuration, ILogger logger)
@@ -37,6 +38,17 @@
         {
             if (DateTimeOffset.UtcNow > _expiration)
                 GetNewToken();
+            else if (DateTimeOffset.UtcNow > _expirationWithGracePeriod)
+            {
+                try
+                {
+                    GetNewToken();
+                }
+                catch (Exception e)
+                {
+                    _logger?.Warning(e, "Will continue to use old token which is valid for {TokenValidityTimeInSeconds} more seconds",  (int)(_expiration - DateTimeOffset.UtcNow).TotalSeconds);
+                }
+            }
 
             return _token;
         }
@@ -78,7 +90,8 @@
             {
                 var data = JsonConvert.DeserializeObject<OauthTokenResponse>(response.Content);
                 _token = data.access_token;
-                _expiration = DateTimeOffset.UtcNow.AddSeconds(data.expires_in - 10);
+                _expiration = DateTimeOffset.UtcNow.AddSeconds(data.expires_in);
+                _expirationWithGracePeriod = DateTimeOffset.UtcNow.AddSeconds(data.expires_in * 0.8);
                 _tokenType = data.token_type;
                 _logger?.Information("Successfully fetched oath2 token from the issuer {Issuer}", _configuration.Issuer);
             }
