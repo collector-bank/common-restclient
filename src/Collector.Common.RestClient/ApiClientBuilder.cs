@@ -22,6 +22,7 @@
 
         private ILogger _logger;
         private Func<string> _contextFunc;
+        private Func<string, string> _configurationKeyDecorator = s => s;
 
         /// <summary>
         /// Configure the IRestApiClient by RestContract key
@@ -80,6 +81,12 @@
             return this;
         }
 
+        public ApiClientBuilder WithConfigurationKeyDecorator(Func<string, string> configurationKeyDecorator)
+        {
+            _configurationKeyDecorator = configurationKeyDecorator;
+            return this;
+        }
+
         /// <summary>
         /// Configures serilog for all requests made by the IRestApiClient that's beeing built
         /// </summary>
@@ -105,7 +112,7 @@
                 kvp => kvp.Key,
                 kvp => kvp.Value.CreateFactory(_logger));
 
-            var wrapper = new RestSharpClientWrapper(BaseUris, authorizationHeaderFactories, Timeouts, _logger);
+            var wrapper = new RestSharpClientWrapper(BaseUris, authorizationHeaderFactories, Timeouts, _configurationKeyDecorator, _logger);
 
             var requestHandler = new RestSharpRequestHandler(wrapper);
 

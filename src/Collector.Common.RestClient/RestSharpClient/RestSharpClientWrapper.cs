@@ -22,17 +22,20 @@
         private readonly IDictionary<string, Uri> _baseUrlMappings;
         private readonly IDictionary<string, IAuthorizationHeaderFactory> _authorizationHeaderFactories;
         private readonly IDictionary<string, TimeSpan> _timeouts;
+        private readonly Func<string, string> _configurationKeyDecorator;
         private readonly ILogger _logger;
 
         public RestSharpClientWrapper(
             IDictionary<string, Uri> baseUrlMappings, 
             IDictionary<string, IAuthorizationHeaderFactory> authorizationHeaderFactories,
             IDictionary<string, TimeSpan> timeouts,
+            Func<string, string> configurationKeyDecorator,
             ILogger logger)
         {
             _baseUrlMappings = baseUrlMappings;
             _authorizationHeaderFactories = authorizationHeaderFactories;
             _timeouts = timeouts;
+            _configurationKeyDecorator = configurationKeyDecorator;
             _logger = logger?.ForContext(GetType());
         }
 
@@ -57,16 +60,16 @@
 
         public void ExecuteAsync(IRestRequest restRequest, IRequest request, Action<IRestResponse> callback)
         {
-            var contractKey = request.GetConfigurationKey();
-            if (!RestClients.ContainsKey(contractKey))
+            var configurationKey = _configurationKeyDecorator(request.GetConfigurationKey());
+            if (!RestClients.ContainsKey(configurationKey))
             {
-                InitRestClient(contractKey);
+                InitRestClient(configurationKey);
             }
 
-            var restClient = RestClients[contractKey];
+            var restClient = RestClients[configurationKey];
 
 
-            TryLogRequest(restRequest, request, restClient);
+            TryLogRequest(restRequest, request, restClient, configurationKey);
 
             var stopwatch = Stopwatch.StartNew();
             restClient.ExecuteAsync(
@@ -74,13 +77,13 @@
                 response =>
                 {
                     stopwatch.Stop();
-                    TryLogResponse(restRequest, stopwatch, response, request);
+                    TryLogResponse(restRequest, stopwatch, response, request, configurationKey);
 
                     callback(response);
                 });
         }
 
-        private void TryLogRequest(IRestRequest restRequest, IRequest request, IRestClient restClient)
+        private void TryLogRequest(IRestRequest restRequest, IRequest request, IRestClient restClient, string configurationKey)
         {
             try
             {
@@ -94,7 +97,7 @@
                                             };
 
                 _logger?.ForContext("RestClient", restClientLogProperty, destructureObjects: true)
-                       ?.Information("Rest request sent to {ConfigurationKey}", request.GetConfigurationKey());
+                       ?.Information("Rest request sent to {ConfigurationKey}", configurationKey);
             }
             catch (Exception e)
             {
@@ -102,7 +105,7 @@
             }
         }
 
-        private void TryLogResponse(IRestRequest restRequest, Stopwatch stopwatch, IRestResponse response, IRequest request)
+        private void TryLogResponse(IRestRequest restRequest, Stopwatch stopwatch, IRestResponse response, IRequest request, string configurationKey)
         {
             try
             {
@@ -119,7 +122,7 @@
                                             };
 
                 _logger?.ForContext("RestClient", restClientLogProperty, destructureObjects: true)
-                       ?.Information("Rest response recieved from {ConfigurationKey}", request.GetConfigurationKey());
+                       ?.Information("Rest response recieved from {ConfigurationKey}", configurationKey);
             }
             catch (Exception e)
             {
