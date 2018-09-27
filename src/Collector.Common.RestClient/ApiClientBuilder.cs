@@ -87,6 +87,19 @@
             return this;
         }
 
+        public ApiClientBuilder WithAuthorizationConfiguration(string contractKey, IAuthorizationConfiguration authorizationConfiguration)
+        {
+            if (authorizationConfiguration == null)
+                return this;
+
+            if (Authenticators.ContainsKey(contractKey))
+                throw new RestClientConfigurationException($"AuthorizationConfiguration for {contractKey} has already been configured.");
+
+            Authenticators.Add(contractKey, authorizationConfiguration);
+
+            return this;
+        }
+
         /// <summary>
         /// Configures serilog for all requests made by the IRestApiClient that's beeing built
         /// </summary>
