@@ -1,5 +1,9 @@
 ﻿namespace Collector.Common.RestClient.UnitTests
 {
+    using System;
+
+    using Collector.Common.RestClient.Authorization;
+
     using Microsoft.Extensions.Configuration;
 
     using NUnit.Framework;
@@ -28,6 +32,21 @@
             var provider = new ApiClientBuilder()
                 .ConfigureFromAppSettings()
                 .Build();
+
+            Assert.NotNull(provider);
+        }
+
+
+        [Test]
+        public void It_can_replace_or_add_authorization_configuration()
+        {
+            var clientId = Guid.NewGuid().ToString();
+            var authorizationConfiguration = new Oauth2AuthorizationConfiguration(clientId, "secret", "aud", "issuer", "scopes");
+            var provider = new ApiClientBuilder()
+                           .ConfigureFromAppSettings()
+                           .WithAuthorizationConfiguration("MyApi", authorizationConfiguration)
+                           .WithAuthorizationConfiguration("MyOtherApi", authorizationConfiguration)
+                           .Build();
 
             Assert.NotNull(provider);
         }
