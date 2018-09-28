@@ -93,9 +93,9 @@
                 return this;
 
             if (Authenticators.ContainsKey(contractKey))
-                throw new RestClientConfigurationException($"AuthorizationConfiguration for {contractKey} has already been configured.");
-
-            Authenticators.Add(contractKey, authorizationConfiguration);
+                Authenticators[contractKey] = authorizationConfiguration;
+            else
+                Authenticators.Add(contractKey, authorizationConfiguration);
 
             return this;
         }
