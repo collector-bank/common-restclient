@@ -18,6 +18,7 @@
     {
         internal readonly IDictionary<string, Uri> BaseUris = new Dictionary<string, Uri>();
         internal readonly IDictionary<string, IAuthorizationConfiguration> Authenticators = new Dictionary<string, IAuthorizationConfiguration>();
+        internal readonly IDictionary<string, IAuthorizationHeaderFactory> AuthorizationHeaderFactories = new Dictionary<string, IAuthorizationHeaderFactory>();
         internal readonly IDictionary<string, TimeSpan> Timeouts = new Dictionary<string, TimeSpan>();
 
         private ILogger _logger;
@@ -87,15 +88,10 @@
             return this;
         }
 
-        public ApiClientBuilder WithAuthorizationConfiguration(string contractKey, IAuthorizationConfiguration authorizationConfiguration)
+        public ApiClientBuilder WithAuthorizationHeaderFactory(string contractKey, IAuthorizationHeaderFactory authorizationHeaderFactory)
         {
-            if (authorizationConfiguration == null)
-                return this;
-
-            if (Authenticators.ContainsKey(contractKey))
-                Authenticators[contractKey] = authorizationConfiguration;
-            else
-                Authenticators.Add(contractKey, authorizationConfiguration);
+            if (authorizationHeaderFactory != null)
+                AuthorizationHeaderFactories[contractKey] = authorizationHeaderFactory;
 
             return this;
         }
@@ -124,6 +120,11 @@
             var authorizationHeaderFactories = Authenticators.ToDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value.CreateFactory(_logger));
+
+            foreach (var customAuthorizationHeaderFactory in AuthorizationHeaderFactories)
+            {
+                authorizationHeaderFactories[customAuthorizationHeaderFactory.Key] = customAuthorizationHeaderFactory.Value;
+            }
 
             var wrapper = new RestSharpClientWrapper(BaseUris, authorizationHeaderFactories, Timeouts, _configurationKeyDecorator, _logger);
 

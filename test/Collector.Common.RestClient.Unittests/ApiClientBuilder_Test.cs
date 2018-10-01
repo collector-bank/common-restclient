@@ -38,14 +38,15 @@
 
 
         [Test]
-        public void It_can_replace_or_add_authorization_configuration()
+        public void It_can_replace_or_add_authorization_header_factories()
         {
             var clientId = Guid.NewGuid().ToString();
-            var authorizationConfiguration = new Oauth2AuthorizationConfiguration(clientId, "secret", "aud", "issuer", "scopes");
+            var authorizationHeaderFactory = new Oauth2AuthorizationConfiguration(clientId, "secret", "aud", "issuer", "scopes").CreateFactory(null);
+
             var provider = new ApiClientBuilder()
                            .ConfigureFromAppSettings()
-                           .WithAuthorizationConfiguration("MyApi", authorizationConfiguration)
-                           .WithAuthorizationConfiguration("MyOtherApi", authorizationConfiguration)
+                           .WithAuthorizationHeaderFactory("MyApi", authorizationHeaderFactory)
+                           .WithAuthorizationHeaderFactory("MyOtherApi", authorizationHeaderFactory)
                            .Build();
 
             Assert.NotNull(provider);
