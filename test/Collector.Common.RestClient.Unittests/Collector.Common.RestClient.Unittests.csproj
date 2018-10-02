@@ -6,9 +6,13 @@
 
   <ItemGroup>
     <None Remove="appsettings.json" />
+    <None Remove="configuration.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="configuration.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

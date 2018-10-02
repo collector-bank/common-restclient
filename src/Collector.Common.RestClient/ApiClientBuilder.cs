@@ -18,7 +18,10 @@
     {
         internal readonly IDictionary<string, Uri> BaseUris = new Dictionary<string, Uri>();
         internal readonly IDictionary<string, IAuthorizationConfiguration> Authenticators = new Dictionary<string, IAuthorizationConfiguration>();
-        internal readonly IDictionary<string, IAuthorizationHeaderFactory> AuthorizationHeaderFactories = new Dictionary<string, IAuthorizationHeaderFactory>();
+        internal readonly IDictionary<string, Func<IConfigReader, IAuthorizationConfiguration>> AuthenticationMethods = new Dictionary<string, Func<IConfigReader, IAuthorizationConfiguration>>()
+                                                                                                                        {
+                                                                                                                            ["oauth2"] = configReader => new Oauth2AuthorizationConfiguration(configReader)
+                                                                                                                        };
         internal readonly IDictionary<string, TimeSpan> Timeouts = new Dictionary<string, TimeSpan>();
 
         private ILogger _logger;
@@ -88,10 +91,12 @@
             return this;
         }
 
-        public ApiClientBuilder WithAuthorizationHeaderFactory(string contractKey, IAuthorizationHeaderFactory authorizationHeaderFactory)
+        public ApiClientBuilder RegisterAuthenticator(string authenticationMethod, Func<IConfigReader, IAuthorizationConfiguration> authorizationConfigurationBuilder)
         {
-            if (authorizationHeaderFactory != null)
-                AuthorizationHeaderFactories[contractKey] = authorizationHeaderFactory;
+            if (authorizationConfigurationBuilder == null)
+                throw new ArgumentNullException(nameof(authorizationConfigurationBuilder));
+
+            AuthenticationMethods[authenticationMethod.ToLower()] = authorizationConfigurationBuilder;
 
             return this;
         }
@@ -121,11 +126,6 @@
                 kvp => kvp.Key,
                 kvp => kvp.Value.CreateFactory(_logger));
 
-            foreach (var customAuthorizationHeaderFactory in AuthorizationHeaderFactories)
-            {
-                authorizationHeaderFactories[customAuthorizationHeaderFactory.Key] = customAuthorizationHeaderFactory.Value;
-            }
-
             var wrapper = new RestSharpClientWrapper(BaseUris, authorizationHeaderFactories, Timeouts, _configurationKeyDecorator, _logger);
 
             var requestHandler = new RestSharpRequestHandler(wrapper);
@@ -141,8 +141,8 @@
 
             if (!string.IsNullOrEmpty(authentication))
             {
-                if (authentication.ToLower() == "oauth2")
-                    Authenticators.Add(contractKey, new Oauth2AuthorizationConfiguration(configReader));
+                if(AuthenticationMethods.ContainsKey(authentication.ToLower()))
+                    Authenticators.Add(contractKey, AuthenticationMethods[authentication.ToLower()](configReader));
                 else
                     throw new RestClientConfigurationException($"Authentication method '{authentication}' is not supported.");
             }

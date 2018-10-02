@@ -10,12 +10,6 @@
             "Audience": "https://my-api.com",
             "BaseUrl": "https://my-api.com",
             "Timeout": "00:00:30"
-        },
-        "MyCustomAuthApi": {
-            "Audience": "https://my-custom-auth--api.com",
-            "BaseUrl": "https://my-custom-auth-api.com",
-            "Timeout": "00:00:30",
-            "Authentication": "MyCustomAuth"
         }
     }
   }
