@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal interface IConfigReader
+    public interface IConfigReader
     {
         string GetString(string key, bool onlyFromSubSection = false);
 

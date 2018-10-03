@@ -117,6 +117,7 @@
                                                 StatusCode = (int)response.StatusCode,
                                                 MediaType = response.ContentType,
                                                 ResponseTimeMilliseconds = (int)stopwatch.ElapsedMilliseconds,
+                                                ResponseContentLength = (int)response.ContentLength,
                                                 RawResponseBody = isJsonResponse ? response.Content : "Response not in json format",
                                                 ResponseBody = isJsonResponse ? GetFormatedResponseContent(response) : "Response not in json format"
                                             };
