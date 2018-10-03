@@ -9,6 +9,7 @@
     using Collector.Common.RestClient.Configuration;
     using Collector.Common.RestClient.Exceptions;
     using Collector.Common.RestClient.RestSharpClient;
+    using Collector.Common.RestContracts.Interfaces;
 
     using Microsoft.Extensions.Configuration;
 
@@ -23,6 +24,9 @@
                                                                                                                             ["oauth2"] = configReader => new Oauth2AuthorizationConfiguration(configReader)
                                                                                                                         };
         internal readonly IDictionary<string, TimeSpan> Timeouts = new Dictionary<string, TimeSpan>();
+
+        internal readonly IDictionary<string, ISuccessfulResponseParser> _successfulResponseParsers = new Dictionary<string, ISuccessfulResponseParser>();
+        internal readonly IDictionary<string, IErrorResponseParser> _errorResponseParsers = new Dictionary<string, IErrorResponseParser>();
 
         private ILogger _logger;
         private Func<string> _contextFunc;
@@ -112,6 +116,40 @@
         }
 
         /// <summary>
+        /// Register error response parser by API configuration
+        /// </summary>
+        /// <param name="contractKey">API configuration name to target with error response parser registration</param>
+        /// <param name="parser">Implementation of <see cref="IErrorResponseParser"/></param>
+        public ApiClientBuilder WithResponseParser(string contractKey, IErrorResponseParser parser)
+        {
+            if (string.IsNullOrWhiteSpace(contractKey))
+            {
+                throw new ArgumentNullException(nameof(contractKey));
+            }
+
+            _errorResponseParsers[contractKey] = parser;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Register successful response parser by API configuration
+        /// </summary>
+        /// <param name="contractKey">API configuration name to target with successful response parser registration</param>
+        /// <param name="parser">Implementation of <see cref="object"/></param>
+        public ApiClientBuilder WithResponseParser(string contractKey, ISuccessfulResponseParser parser)
+        {
+            if (string.IsNullOrWhiteSpace(contractKey))
+            {
+                throw new ArgumentNullException(nameof(contractKey));
+            }
+
+            _successfulResponseParsers[contractKey] = parser;
+
+            return this;
+        }
+
+        /// <summary>
         /// Builds a configured IRestApiClient, based on currently configured configurations
         /// </summary>
         /// <returns>Fully configured IRestApiClient</returns>
@@ -119,7 +157,7 @@
         {
             if (!BaseUris.Any())
             {
-                throw new RestClientConfigurationException("Please configure atleast one base uri");
+                throw new RestClientConfigurationException("Please configure at least one base uri");
             }
 
             var authorizationHeaderFactories = Authenticators.ToDictionary(
@@ -128,7 +166,7 @@
 
             var wrapper = new RestSharpClientWrapper(BaseUris, authorizationHeaderFactories, Timeouts, _configurationKeyDecorator, _logger);
 
-            var requestHandler = new RestSharpRequestHandler(wrapper);
+            var requestHandler = new RestSharpRequestHandler(wrapper, _successfulResponseParsers, _errorResponseParsers);
 
             return new RestApiClient(requestHandler, _contextFunc);
         }
