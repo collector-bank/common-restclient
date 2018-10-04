@@ -131,10 +131,8 @@
 
         private static TResponseParser FindParser<TResponseParser>(string configurationKey, IDictionary<string, TResponseParser> parsers) where TResponseParser : class
         {
-            if (parsers.ContainsKey(configurationKey))
-                return parsers[configurationKey];
-
-            return null;
+            return parsers?.ContainsKey(configurationKey) == true 
+                    ? parsers[configurationKey] : null;
         }
 
         private Task<TResponse> GetResponseAsync<TResponse>(IRestRequest restRequest, IRequest request) where TResponse : class
