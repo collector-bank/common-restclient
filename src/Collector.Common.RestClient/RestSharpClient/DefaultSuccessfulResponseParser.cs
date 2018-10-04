@@ -5,9 +5,9 @@
 
     using Newtonsoft.Json;
 
-    internal class DefaultSuccessfulResponseParser<TResponse> : ISuccessfulResponseParser<TResponse>
+    internal class DefaultSuccessfulResponseParser : ISuccessfulResponseParser
     {
-        public TResponse ParseResponse(string content)
+        public TResponse ParseResponse<TResponse>(string content)
         {
             var settings = new JsonSerializerSettings
                            {

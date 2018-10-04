@@ -4,6 +4,7 @@
     using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     using Collector.Common.RestClient.Exceptions;
@@ -15,10 +16,14 @@
     internal class RestSharpRequestHandler : IRequestHandler
     {
         private readonly IRestSharpClientWrapper _client;
+        private readonly IDictionary<string, ISuccessfulResponseParser> _successParsers;
+        private readonly IDictionary<string, IErrorResponseParser> _errorParsers;
 
-        internal RestSharpRequestHandler(IRestSharpClientWrapper client)
+        internal RestSharpRequestHandler(IRestSharpClientWrapper client, IDictionary<string, ISuccessfulResponseParser> successParsers = null, IDictionary<string, IErrorResponseParser> errorParsers = null)
         {
             _client = client;
+            _successParsers = successParsers;
+            _errorParsers = errorParsers;
         }
 
         /// <summary>
@@ -99,23 +104,35 @@
 
         private static bool IsSuccessStatusCode(IRestResponse response) => (response.StatusCode >= HttpStatusCode.OK) && (response.StatusCode <= (HttpStatusCode)299);
 
-        private static RestClientCallException ParseError(IRestResponse response, IRequest request)
+        private static RestClientCallException ParseError(IRestResponse response, IRequest request, IDictionary<string, IErrorResponseParser> errorParsers)
         {
-            var parser = request as IErrorResponseParser ?? new DefaultErrorResponseParser();
+            var parser = request as IErrorResponseParser
+                            ?? FindParser(request.GetConfigurationKey(), errorParsers)
+                            ?? new DefaultErrorResponseParser();
+
             var error = parser.ParseError(response.Content);
+
             return error?.Message != null
                        ? new RestClientCallException(httpStatusCode: response.StatusCode, restError: error)
                        : new RestClientCallException(httpStatusCode: response.StatusCode, message: $"Rest request not successful, {response.StatusCode}");
         }
 
-        private static TResponse ParseSuccess<TResponse>(IRestResponse response, IRequest request) where TResponse : class
+        private static TResponse ParseSuccess<TResponse>(IRestResponse response, IRequest request, IDictionary<string, ISuccessfulResponseParser> successParsers) where TResponse : class
         {
             if (typeof(TResponse) == typeof(Stream))
                 return new MemoryStream(response.RawBytes) as TResponse;
 
-            var parser = request as ISuccessfulResponseParser<TResponse> ?? new DefaultSuccessfulResponseParser<TResponse>();
+            var parser = request as ISuccessfulResponseParser
+                            ?? FindParser(request.GetConfigurationKey(), successParsers)
+                            ?? new DefaultSuccessfulResponseParser();
 
-            return parser.ParseResponse(response.Content);
+            return parser.ParseResponse<TResponse>(response.Content);
+        }
+
+        private static TResponseParser FindParser<TResponseParser>(string configurationKey, IDictionary<string, TResponseParser> parsers) where TResponseParser : class
+        {
+            return parsers?.ContainsKey(configurationKey) == true 
+                    ? parsers[configurationKey] : null;
         }
 
         private Task<TResponse> GetResponseAsync<TResponse>(IRestRequest restRequest, IRequest request) where TResponse : class
@@ -142,9 +159,9 @@
             try
             {
                 if (IsSuccessStatusCode(response))
-                    taskCompletionSource.SetResult(ParseSuccess<TResponse>(response, request));
+                    taskCompletionSource.SetResult(ParseSuccess<TResponse>(response, request, _successParsers));
                 else
-                    taskCompletionSource.SetException(ParseError(response, request));
+                    taskCompletionSource.SetException(ParseError(response, request, _errorParsers));
             }
             catch (Exception ex)
             {
