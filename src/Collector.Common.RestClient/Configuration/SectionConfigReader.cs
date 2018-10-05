@@ -1,4 +1,5 @@
-﻿namespace Collector.Common.RestClient.Configuration
+﻿#if NETSTANDARD2_0
+namespace Collector.Common.RestClient.Configuration
 {
     using System;
 
@@ -40,3 +41,4 @@
         }
     }
 }
+#endif
