@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
+    using System.Threading.Tasks;
 
     using Collector.Common.RestClient.Authorization;
     using Collector.Common.RestClient.Exceptions;
@@ -13,11 +14,11 @@
 
     using NUnit.Framework;
 
-    using Ploeh.AutoFixture;
+    using AutoFixture;
 
     using RestSharp;
 
-    using Rhino.Mocks;
+    using Moq;
 
     [TestFixture]
     public class RestSharpRequestHandler_Test
@@ -45,17 +46,17 @@
         [Test]
         public void When_authentication_is_provided_it_will_get_authorization_header()
         {
-            var authorizationHeaderFactory = MockRepository.GenerateStub<IAuthorizationHeaderFactory>();
+            var authorizationHeaderFactory = new Mock<IAuthorizationHeaderFactory>();
 
-            _restClientWrapper.Authenticator = new RestSharpAuthenticator(authorizationHeaderFactory);
+            _restClientWrapper.Authenticator = new RestSharpAuthenticator(authorizationHeaderFactory.Object);
 
             _restClientWrapper.Authenticator.Authenticate(_restClient, _restRequest);
 
-            authorizationHeaderFactory.AssertWasCalled(x => x.Get(Arg<RestAuthorizeRequestData>.Is.Anything));
+            authorizationHeaderFactory.Verify(x => x.Get(It.IsAny<RestAuthorizeRequestData>()));
         }
 
         [Test]
-        public async void When_executing_call_async_the_rest_request_has_the_expected_uri()
+        public async Task When_executing_call_async_the_rest_request_has_the_expected_uri()
         {
             var request = new RequestWithResponse(new DummyResourceIdentifier()) { StringProperty = _fixture.Create<string>() };
          
@@ -68,7 +69,7 @@
         }
 
         [Test]
-        public async void When_executing_call_async_the_rest_request_has_the_expected_http_method()
+        public async Task When_executing_call_async_the_rest_request_has_the_expected_http_method()
         {
             var request = new RequestWithResponse(new DummyResourceIdentifier()) { StringProperty = _fixture.Create<string>() };
 
@@ -80,7 +81,7 @@
         }
 
         [Test]
-        public async void When_executing_call_async_the_rest_request_without_response_has_the_expected_uri()
+        public async Task When_executing_call_async_the_rest_request_without_response_has_the_expected_uri()
         {
             var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = _fixture.Create<string>() };
 
@@ -92,7 +93,7 @@
         }
 
         [Test]
-        public async void When_executing_call_async_the_rest_request_without_response_has_the_expected_http_method()
+        public async Task When_executing_call_async_the_rest_request_without_response_has_the_expected_http_method()
         {
             var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = _fixture.Create<string>() };
 
@@ -110,7 +111,7 @@
             _restClientWrapper.ExpectedError = null;
             _restClientWrapper.ExpectedResponseStatusCode = HttpStatusCode.BadRequest;
 
-            var exception = Assert.Throws<RestClientCallException>(async () => await _sut.CallAsync(request));
+            var exception = Assert.ThrowsAsync<RestClientCallException>(async () => await _sut.CallAsync(request));
 
             Assert.AreEqual(_restClientWrapper.ExpectedResponseStatusCode, exception.HttpStatusCode);
         }
@@ -122,7 +123,7 @@
 
             ConfigureRestSharpFakeWrapper();
 
-            Assert.Throws<RestClientCallException>(async () => await _sut.CallAsync(request));
+            Assert.ThrowsAsync<RestClientCallException>(async () => await _sut.CallAsync(request));
         }
 
         [Test]
@@ -133,7 +134,7 @@
 
             ConfigureRestSharpFakeWrapper(expectedError);
 
-            var exception = Assert.Throws<RestClientCallException>(async () => await _sut.CallAsync(request));
+            var exception = Assert.ThrowsAsync<RestClientCallException>(async () => await _sut.CallAsync(request));
 
             Assert.AreEqual(expectedError.Code, exception.Error.Code);
             Assert.AreEqual(expectedError.Message, exception.Error.Message);

@@ -157,5 +157,32 @@
         {
             throw new NotImplementedException();
         }
+
+#if NETCOREAPP2_0
+        public IRestRequest AddFile(string name, Action<Stream> writer, string fileName, long contentLength, string contentType = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IRestRequest AddOrUpdateParameter(Parameter p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IRestRequest AddOrUpdateParameter(string name, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IRestRequest AddOrUpdateParameter(string name, object value, ParameterType type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IRestRequest AddOrUpdateParameter(string name, object value, string contentType, ParameterType type)
+        {
+            throw new NotImplementedException();
+        }
+#endif
     }
 }

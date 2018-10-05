@@ -1,4 +1,5 @@
-﻿namespace Collector.Common.RestClient.Configuration
+﻿#if NET45
+namespace Collector.Common.RestClient.Configuration
 {
     using System;
     using System.Configuration;
@@ -63,3 +64,4 @@
         }
     }
 }
+#endif

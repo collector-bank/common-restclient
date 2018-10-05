@@ -7,28 +7,28 @@
 
     using NUnit.Framework;
 
-    using Ploeh.AutoFixture;
+    using AutoFixture;
 
-    using Rhino.Mocks;
+    using Moq;
 
     [TestFixture]
     public class RestApiClient_Test
     {
         private RestApiClient _sut;
-        private IRequestHandler _stub;
+        private Mock<IRequestHandler> _stub;
         private string _context;
         private Fixture _fixture;
 
-        [TestFixtureSetUp]
+        [SetUp]
         protected void TestInitialize()
         {
             _fixture = new Fixture();
-            _stub = MockRepository.GenerateMock<IRequestHandler>();
-            _stub.Stub(x => x.CallAsync(Arg<RequestWithResponse>.Is.Anything)).Return(Task.FromResult(_fixture.Create<string>()));
-            _stub.Stub(x => x.CallAsync(Arg<RequestWithoutResponse>.Is.Anything)).Return(Task.FromResult(_fixture.Create<string>()));
+            _stub = new Mock<IRequestHandler>();
+            _stub.Setup(x => x.CallAsync(It.IsAny<RequestWithResponse>())).Returns(Task.FromResult(_fixture.Create<string>()));
+            _stub.Setup(x => x.CallAsync(It.IsAny<RequestWithResponse>())).Returns(Task.FromResult(_fixture.Create<string>()));
 
             _context = _fixture.Create<string>();
-            _sut = new RestApiClient(_stub, () => _context);
+            _sut = new RestApiClient(_stub.Object, () => _context);
         }
 
         [Test]
@@ -36,7 +36,7 @@
         {
             var request = new RequestWithResponse(new DummyResourceIdentifier());
 
-            Assert.Throws<RestClientCallException>(async () => await _sut.CallAsync(request));
+            Assert.ThrowsAsync<RestClientCallException>(async () => await _sut.CallAsync(request));
         }
 
         [Test]
@@ -44,11 +44,11 @@
         {
             var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = null };
 
-            Assert.Throws<RestClientCallException>(async () => await _sut.CallAsync(request));
+            Assert.ThrowsAsync<RestClientCallException>(async () => await _sut.CallAsync(request));
         }
 
         [Test]
-        public async void When_executing_call_async_and_the_request_does_not_have_a_context_then_a_context_is_added()
+        public async Task When_executing_call_async_and_the_request_does_not_have_a_context_then_a_context_is_added()
         {
             var request = new RequestWithoutResponse(new DummyResourceIdentifier())
             {

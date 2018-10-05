@@ -3,16 +3,16 @@
     using System;
     using System.Collections.Generic;
 
+    using AutoFixture;
+
     using Collector.Common.RestClient.Authorization;
     using Collector.Common.RestClient.Exceptions;
 
+    using Moq;
+
     using NUnit.Framework;
 
-    using Ploeh.AutoFixture;
-
     using RestSharp;
-
-    using Rhino.Mocks;
 
     [TestFixture]
     public class ApiClientBuilder_Test
@@ -80,16 +80,16 @@
         {
             var contract = _fixture.Create<string>();
             var endpoint = _fixture.Create<Uri>();
-            var authorizationConfiguration = MockRepository.GenerateMock<IAuthorizationConfiguration> ();
+            var authorizationConfiguration = new Mock<IAuthorizationConfiguration>();
 
-            var reqStub = MockRepository.GenerateMock<IRestRequest>();
-            reqStub.Stub(x => x.Parameters).Return(new List<Parameter>());
+            var reqStub = _fixture.Freeze<Mock<IRestRequest>>();
+            reqStub.Setup(x => x.Parameters).Returns(new List<Parameter>());
 
-            var builder = _sut.ConfigureContractByKey(contract, endpoint.ToString(), authorizationConfiguration);
+            var builder = _sut.ConfigureContractByKey(contract, endpoint.ToString(), authorizationConfiguration.Object);
 
             var configuredAuthorizationHeaderFactory = builder.Authenticators[contract];
 
-            Assert.AreSame(authorizationConfiguration, configuredAuthorizationHeaderFactory); // WTF
+            Assert.AreSame(authorizationConfiguration.Object, configuredAuthorizationHeaderFactory); // WTF
         }
 
         [Test]
