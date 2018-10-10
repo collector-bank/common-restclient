@@ -23,7 +23,6 @@
                 .GetSection("RestClient");
 
             var provider = new ApiClientBuilder()
-                .RegisterAuthenticator("MyCustomAuth", configReader => new Oauth2AuthorizationConfiguration("clientId", "secret", "aud", "issuer", "scopes"))
                 .ConfigureFromConfigSection(section)
                 .Build();
 #elif NET452
