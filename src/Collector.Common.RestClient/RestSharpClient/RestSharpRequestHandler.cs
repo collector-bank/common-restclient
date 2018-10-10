@@ -1,9 +1,11 @@
 ﻿namespace Collector.Common.RestClient.RestSharpClient
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Reflection;
     using System.Threading.Tasks;
 
     using Collector.Common.RestClient.Exceptions;
@@ -99,8 +101,7 @@
             }
         }
 
-        private static RestRequest CreateRestRequest<TResourceIdentifier>(RequestBase<TResourceIdentifier> request)
-            where TResourceIdentifier : class, IResourceIdentifier
+        private static RestRequest CreateRestRequest<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier
         {
             var restRequest = new RestRequest(request.GetResourceIdentifier().Uri, GetMethod(request.GetHttpMethod()))
                               {
