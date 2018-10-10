@@ -18,11 +18,12 @@
         {
 #if NETCOREAPP2_0
             var section = new ConfigurationBuilder()
-                .AddJsonFile("configuration.json")
+                .AddJsonFile("appsettings.json")
                 .Build()
                 .GetSection("RestClient");
 
             var provider = new ApiClientBuilder()
+                .RegisterAuthenticator("MyCustomAuth", configReader => new Oauth2AuthorizationConfiguration("clientId", "secret", "aud", "issuer", "scopes"))
                 .ConfigureFromConfigSection(section)
                 .Build();
 #elif NET452
@@ -52,7 +53,7 @@
 #elif NET452
             var provider = new ApiClientBuilder()
                            .ConfigureFromAppSettings()
-                           .RegisterAuthenticator("MyCustomAuth", configReader => new Oauth2AuthorizationConfiguration(clientId, "secret", "aud", "issuer", "scopes"))
+                           .RegisterAuthenticator("MyOther", configReader => new Oauth2AuthorizationConfiguration(clientId, "secret", "aud", "issuer", "scopes"))
                            .Build();
 #endif
 

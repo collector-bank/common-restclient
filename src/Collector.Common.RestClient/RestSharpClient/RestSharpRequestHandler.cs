@@ -70,17 +70,37 @@
                                     .GetProperties()
                                     .Where(p => p.GetValue(request, null) != null)
                                     .Where(p => !typeof(IResourceIdentifier).IsAssignableFrom(p.PropertyType))
-                                    .Select(p => new { p.Name, Value = p.GetValue(request, null) })
+                                    .SelectMany(p => GetValues(p, request))
+                                    .Where(x => !string.IsNullOrEmpty(x.Value))
                                     .ToList();
 
             if (!parameters.Any())
                 return;
 
             foreach (var parameter in parameters)
-                restRequest.AddParameter(parameter.Name, parameter.Value, "application/json", ParameterType.GetOrPost);
+                restRequest.AddParameter(parameter.Key, parameter.Value, "application/json", ParameterType.GetOrPost);
         }
 
-        private static RestRequest CreateRestRequest<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier
+        private static IEnumerable<KeyValuePair<string, string>> GetValues(PropertyInfo propertyInfo, object obj)
+        {
+            var parameterValue = propertyInfo.GetValue(obj, null);
+
+            if (parameterValue != null && propertyInfo.PropertyType.IsArray)
+            {
+                var arrayValues = from object o in (Array)parameterValue select o.ToString();
+                foreach (var arrayValue in arrayValues)
+                {
+                    yield return new KeyValuePair<string, string>(propertyInfo.Name, arrayValue);
+                }
+            }
+            else
+            {
+                yield return new KeyValuePair<string, string>(propertyInfo.Name, parameterValue?.ToString());
+            }
+        }
+
+        private static RestRequest CreateRestRequest<TResourceIdentifier>(RequestBase<TResourceIdentifier> request)
+            where TResourceIdentifier : class, IResourceIdentifier
         {
             var restRequest = new RestRequest(request.GetResourceIdentifier().Uri, GetMethod(request.GetHttpMethod()))
                               {
