@@ -16,6 +16,8 @@
         [Test]
         public void It_can_be_configured_through_either_configuration_sections_or_app_settings()
         {
+            var clientId = Guid.NewGuid().ToString();
+
 #if NETCOREAPP2_0
             var section = new ConfigurationBuilder()
                 .AddJsonFile("configuration.json")
@@ -28,6 +30,7 @@
 #elif NET452
             var provider = new ApiClientBuilder()
                 .ConfigureFromAppSettings()
+                .RegisterAuthenticator("MyCustomAuth", configReader => new Oauth2AuthorizationConfiguration(clientId, "secret", "aud", "issuer", "scopes"))
                 .Build();
 #endif
             Assert.NotNull(provider);
