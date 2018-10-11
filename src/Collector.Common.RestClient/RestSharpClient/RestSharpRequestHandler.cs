@@ -56,7 +56,7 @@
             where TResponse : class
         {
             var restRequest = CreateRestRequest(request);
-
+            
             return await GetResponseAsync<TResponse>(restRequest, request).ConfigureAwait(false);
         }
 
@@ -70,34 +70,35 @@
 
             var parameters = request.GetType()
                                     .GetProperties()
-                                    .Where(p => p.GetValue(request, null) != null)
                                     .Where(p => !typeof(IResourceIdentifier).IsAssignableFrom(p.PropertyType))
                                     .SelectMany(p => GetValues(p, request))
-                                    .Where(x => !string.IsNullOrEmpty(x.Value))
-                                    .ToList();
-
-            if (!parameters.Any())
-                return;
+                                    .ToArray();
 
             foreach (var parameter in parameters)
                 restRequest.AddParameter(parameter.Key, parameter.Value, "application/json", ParameterType.GetOrPost);
         }
 
-        private static IEnumerable<KeyValuePair<string, string>> GetValues(PropertyInfo propertyInfo, object obj)
+        private static IEnumerable<KeyValuePair<string, object>> GetValues(PropertyInfo propertyInfo, object obj)
         {
             var parameterValue = propertyInfo.GetValue(obj, null);
 
-            if (parameterValue != null && propertyInfo.PropertyType.IsArray)
+            if (parameterValue != null)
             {
-                var arrayValues = from object o in (Array)parameterValue select o.ToString();
-                foreach (var arrayValue in arrayValues)
+                if (propertyInfo.PropertyType.IsArray)
                 {
-                    yield return new KeyValuePair<string, string>(propertyInfo.Name, arrayValue);
+                    var arrayValues = from object o in (Array)parameterValue select o;
+                    foreach (var arrayValue in arrayValues)
+                    {
+                        if (arrayValue != null)
+                        {
+                            yield return new KeyValuePair<string, object>(propertyInfo.Name, arrayValue);
+                        }
+                    }
                 }
-            }
-            else
-            {
-                yield return new KeyValuePair<string, string>(propertyInfo.Name, parameterValue?.ToString());
+                else
+                {
+                    yield return new KeyValuePair<string, object>(propertyInfo.Name, parameterValue.ToString());
+                }
             }
         }
 

@@ -55,6 +55,31 @@
         }
     }
 
+    public class GetRequestWithoutResponse : RequestBase<DummyResourceIdentifier>
+    {
+        public GetRequestWithoutResponse(DummyResourceIdentifier resourceIdentifier)
+            : base(resourceIdentifier)
+        {
+        }
+
+        public string[] ArrayProperty { get; set; }
+
+        public override HttpMethod GetHttpMethod() => HttpMethod.GET;
+
+        public override string GetConfigurationKey()
+        {
+            return "Test";
+        }
+
+        protected override IEnumerable<string> ValidateRequest()
+        {
+            if (ArrayProperty == null)
+                return new[] { "Array property is required" };
+
+            return Enumerable.Empty<string>();
+        }
+    }
+
     public class DummyResourceIdentifier : ResourceIdentifier
     {
         public override string Uri => "api.url.com";

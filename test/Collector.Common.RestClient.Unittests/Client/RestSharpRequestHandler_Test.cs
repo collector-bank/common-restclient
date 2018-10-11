@@ -34,9 +34,9 @@
         {
             _fixture = new Fixture();
             _restClient = new RestClient_Fake
-                              {
-                                  BaseUrl = _fixture.Create<Uri>()
-                              };
+            {
+                BaseUrl = _fixture.Create<Uri>()
+            };
             _restRequest = new RestRequest_Fake();
             _restClientWrapper = new RestSharpClientWrapper_Fake();
 
@@ -59,7 +59,7 @@
         public async Task When_executing_call_async_the_rest_request_has_the_expected_uri()
         {
             var request = new RequestWithResponse(new DummyResourceIdentifier()) { StringProperty = _fixture.Create<string>() };
-         
+
 
             await _sut.CallAsync(request);
 
@@ -140,6 +140,28 @@
             Assert.AreEqual(expectedError.Message, exception.Error.Message);
             CollectionAssert.AreEqual(expectedError.Errors.Select(e => e.Message), exception.Error.Errors.Select(e => e.Message));
             CollectionAssert.AreEqual(expectedError.Errors.Select(e => e.Reason), exception.Error.Errors.Select(e => e.Reason));
+        }
+
+        [Test]
+        public async Task When_executing_call_async_for_get_request_with_parameter_array_value_then_expect_same_name_multiple_times_in_parameters()
+        {
+            var values = new[] { string.Empty, "value" };
+            var request = new GetRequestWithoutResponse(new DummyResourceIdentifier()) { ArrayProperty = values };
+
+            await _sut.CallAsync(request);
+
+            Assert.True(_restClientWrapper.LastRequest.Parameters.Count(p => p.Name == "ArrayProperty") == values.Length);
+        }
+
+        [Test]
+        public async Task When_executing_call_async_for_get_request_with_parameter_array_value_containing_null_then_expect_parameter_not_in_parameters()
+        {
+            var values = new string[] { null, null, null };
+            var request = new GetRequestWithoutResponse(new DummyResourceIdentifier()) { ArrayProperty = values };
+
+            await _sut.CallAsync(request);
+
+            Assert.True(_restClientWrapper.LastRequest.Parameters.Count(p => p.Name == "ArrayProperty") == 0);
         }
 
         private void ConfigureRestSharpFakeWrapper(Error error = null, IEnumerable<ErrorInfo> errorInfos = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
