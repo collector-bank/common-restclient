@@ -14,6 +14,7 @@
     public class ApiClientBuilderBase
     {
         internal readonly IDictionary<string, Uri> BaseUris = new Dictionary<string, Uri>();
+        internal readonly IDictionary<string, Func<IConfigReader>> Configurations = new Dictionary<string, Func<IConfigReader>>();
         internal readonly IDictionary<string, IAuthorizationConfiguration> Authenticators = new Dictionary<string, IAuthorizationConfiguration>();
         internal readonly IDictionary<string, Func<IConfigReader, IAuthorizationConfiguration>> AuthenticationMethods = new Dictionary<string, Func<IConfigReader, IAuthorizationConfiguration>>()
                                                                                                                         {
@@ -55,6 +56,19 @@
             return this;
         }
 
+        public ApiClientBuilderBase WithConfiguration(string contractKey, Func<IConfigReader> configBuilder)
+        {
+            if (string.IsNullOrEmpty(contractKey))
+                throw new ArgumentNullException(nameof(contractKey));
+
+            if (configBuilder == null)
+                throw new ArgumentNullException(nameof(configBuilder));
+
+            Configurations[contractKey] = configBuilder;
+
+            return this;
+        }
+
         public ApiClientBuilderBase WithConfigurationKeyDecorator(Func<string, string> configurationKeyDecorator)
         {
             _configurationKeyDecorator = configurationKeyDecorator;
@@ -87,14 +101,19 @@
         /// <returns>Fully configured IRestApiClient</returns>
         public IRestApiClient Build()
         {
+            var authorizationHeaderFactories = Authenticators.ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.CreateFactory(_logger));
+
+            foreach (var contractKey in Configurations.Keys)
+            {
+                ConfigureContractKey(contractKey, Configurations[contractKey]());
+            }
+
             if (!BaseUris.Any())
             {
                 throw new RestClientConfigurationException("Please configure atleast one base uri");
             }
-
-            var authorizationHeaderFactories = Authenticators.ToDictionary(
-                kvp => kvp.Key,
-                kvp => kvp.Value.CreateFactory(_logger));
 
             var wrapper = new RestSharpClientWrapper(BaseUris, authorizationHeaderFactories, Timeouts, _configurationKeyDecorator, _logger);
 

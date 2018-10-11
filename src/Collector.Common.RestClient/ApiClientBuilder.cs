@@ -16,7 +16,7 @@
             foreach (var baseUrlSetting in ConfigurationManager.AppSettings.AllKeys.Where(k => k.StartsWith("RestClient:")).Where(k => k.EndsWith(".BaseUrl")))
             {
                 var contractKey = baseUrlSetting.Split(':').Last().Split('.').First();
-                ConfigureContractKey(contractKey, new AppConfigReader(contractKey));
+                WithConfiguration(contractKey, () => new AppConfigReader(contractKey));
             }
 
             return this;
@@ -43,7 +43,7 @@
         {
             foreach (var subSection in configurationSection.GetSection("Apis").GetChildren())
             {
-                ConfigureContractKey(subSection.Key, new SectionConfigReader(configurationSection, subSection));
+                WithConfiguration(subSection.Key, () => new SectionConfigReader(configurationSection, subSection));
             }
 
             return this;
