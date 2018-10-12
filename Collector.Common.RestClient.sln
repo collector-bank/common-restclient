@@ -1,4 +1,4 @@
-﻿﻿
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.15
@@ -10,6 +10,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0B89F51D-0F3F-4E48-8CA7-DC71E0223AC2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{804C9A6D-343C-42D3-80B8-C3B4884F9B7C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{4863354E-C83C-4C4F-94BF-31D20C182ADA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleExample", "examples\ConsoleExample\ConsoleExample.csproj", "{B0FE6648-D30B-4437-806B-D74BA6B4BCD2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContractsExamples", "examples\ContractsExamples\ContractsExamples.csproj", "{FBCC51AD-F28E-4242-A11F-B59ADEFA6A94}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +31,14 @@ Global
 		{FF257B49-05AC-40A3-975E-FD5C021B4A0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF257B49-05AC-40A3-975E-FD5C021B4A0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF257B49-05AC-40A3-975E-FD5C021B4A0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0FE6648-D30B-4437-806B-D74BA6B4BCD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0FE6648-D30B-4437-806B-D74BA6B4BCD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0FE6648-D30B-4437-806B-D74BA6B4BCD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0FE6648-D30B-4437-806B-D74BA6B4BCD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBCC51AD-F28E-4242-A11F-B59ADEFA6A94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBCC51AD-F28E-4242-A11F-B59ADEFA6A94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBCC51AD-F28E-4242-A11F-B59ADEFA6A94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBCC51AD-F28E-4242-A11F-B59ADEFA6A94}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,5 +46,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{5D15908D-91FC-43DB-B554-CA54794BBE42} = {0B89F51D-0F3F-4E48-8CA7-DC71E0223AC2}
 		{FF257B49-05AC-40A3-975E-FD5C021B4A0A} = {804C9A6D-343C-42D3-80B8-C3B4884F9B7C}
+		{B0FE6648-D30B-4437-806B-D74BA6B4BCD2} = {4863354E-C83C-4C4F-94BF-31D20C182ADA}
+		{FBCC51AD-F28E-4242-A11F-B59ADEFA6A94} = {4863354E-C83C-4C4F-94BF-31D20C182ADA}
 	EndGlobalSection
 EndGlobal
