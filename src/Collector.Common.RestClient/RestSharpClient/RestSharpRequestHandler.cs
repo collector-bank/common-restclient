@@ -113,9 +113,9 @@
             if (typeof(TResponse) == typeof(Stream))
                 return new MemoryStream(response.RawBytes) as TResponse;
 
-            var parser = request as ISuccessfulResponseParser<TResponse> ?? new DefaultSuccessfulResponseParser<TResponse>();
+            var parser = request as ISuccessfulResponseParser ?? new DefaultSuccessfulResponseParser();
 
-            return parser.ParseResponse(response.Content);
+            return parser.ParseResponse<TResponse>(response.Content);
         }
 
         private Task<TResponse> GetResponseAsync<TResponse>(IRestRequest restRequest, IRequest request) where TResponse : class
