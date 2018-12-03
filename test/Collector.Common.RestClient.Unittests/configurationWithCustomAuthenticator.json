@@ -1,0 +1,16 @@
+﻿{
+  "RestClient": {
+    "ClientId": "my_client_id",
+    "ClientSecret": "my_client_secret",
+    "Authentication": "MyCustomAuth",
+    "Issuer": "my_issuer.com",
+
+    "Apis": {
+      "MyApi": {
+        "Audience": "https://my-api.com",
+        "BaseUrl": "https://my-api.com",
+        "Timeout": "00:00:30"
+      }
+    }
+  }
+}

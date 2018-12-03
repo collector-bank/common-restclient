@@ -7,9 +7,13 @@
   <ItemGroup>
     <None Remove="appsettings.json" />
     <None Remove="configuration.json" />
+    <None Remove="configurationWithCustomAuthenticator.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="configurationWithCustomAuthenticator.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="configuration.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
