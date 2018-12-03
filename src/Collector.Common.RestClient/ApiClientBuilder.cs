@@ -108,7 +108,7 @@
         }
 
         /// <summary>
-        /// Configures serilog for all requests made by the IRestApiClient that's beeing built
+        /// Configures serilog for all requests made by the IRestApiClient that's being built
         /// </summary>
         /// <param name="logger">Configured ILogger</param>
         public ApiClientBuilder WithLogger(ILogger logger)
