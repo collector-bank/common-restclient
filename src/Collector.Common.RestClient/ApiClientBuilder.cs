@@ -7,6 +7,7 @@
     using Collector.Common.RestClient.Authorization;
     using Collector.Common.RestClient.Configuration;
     using Collector.Common.RestClient.Exceptions;
+    using Collector.Common.RestClient.Logging;
     using Collector.Common.RestClient.RestSharpClient;
 
     using Serilog;
@@ -26,6 +27,8 @@
         private ILogger _logger;
         private Func<string> _contextFunc;
         private Func<string, string> _configurationKeyDecorator = s => s;
+        private Action<RequestLogEntry> _maskRequestLog;
+        private Action<ResponseLogEntry> _maskResponseLog;
 
 
 #if NET45
@@ -117,6 +120,18 @@
             return this;
         }
 
+        public ApiClientBuilder WithRequestLogMasking(Action<RequestLogEntry> maskRequestLog)
+        {
+            _maskRequestLog = maskRequestLog;
+            return this;
+        }
+
+        public ApiClientBuilder WithResponseLogMasking(Action<ResponseLogEntry> maskResponseLog) 
+        {
+            _maskResponseLog = maskResponseLog;
+            return this;
+        }
+
         /// <summary>
         /// Builds a configured IRestApiClient, based on currently configured configurations
         /// </summary>
@@ -132,7 +147,7 @@
                 kvp => kvp.Key,
                 kvp => kvp.Value.CreateFactory(_logger));
 
-            var wrapper = new RestSharpClientWrapper(BaseUris, authorizationHeaderFactories, Timeouts, _configurationKeyDecorator, _logger);
+            var wrapper = new RestSharpClientWrapper(BaseUris, authorizationHeaderFactories, Timeouts, _configurationKeyDecorator, _logger, _maskRequestLog, _maskResponseLog);
 
             var requestHandler = new RestSharpRequestHandler(wrapper);
 
