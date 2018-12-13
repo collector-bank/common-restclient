@@ -5,7 +5,7 @@
     <PackageId>Collector.Common.RestClient</PackageId>
     <Company>Collector Bank AB</Company>
     <Product>Collector.Common.RestClient</Product>
-    <Version>16.0.1</Version>
+    <Version>17.0.0</Version>
     <Description>Rest API client to use with RestContracts and RestApi</Description>
     <Authors>Team Houdini, Team Heimdal</Authors>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -17,9 +17,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Collector.Common.RestContracts" Version="6.2.0" />
+    <PackageReference Include="Collector.Common.RestContracts" Version="[9.0.0,10.0.0)" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="Serilog" Version="2.5.0" />
+    <PackageReference Include="Serilog" Version="[2.5.0,3.0.0)" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
