@@ -10,7 +10,6 @@
     using Collector.Common.RestContracts.Interfaces;
 
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
 
     using RestSharp;
 
@@ -68,7 +67,6 @@
 
             var restClient = RestClients[configurationKey];
 
-
             TryLogRequest(restRequest, request, restClient, configurationKey);
 
             var stopwatch = Stopwatch.StartNew();
@@ -89,9 +87,7 @@
             {
                 var restClientLogProperty = new
                                             {
-                                                RequestContent = restRequest.Method == Method.GET || restRequest.Method == Method.DELETE
-                                                                     ? string.Empty
-                                                                     : JsonConvert.SerializeObject(request, Formatting.Indented),
+                                                RequestContent = request.GetRequestContentForLogging(JsonConvert.SerializeObject(request)),
                                                 HttpRequestUrl = restClient.BuildUri(restRequest).ToString(),
                                                 HttpRequestType = restRequest.Method
                                             };
@@ -109,7 +105,6 @@
         {
             try
             {
-                var isJsonResponse = response.ContentType?.ToLower().Contains("application/json") ?? false;
                 var restClientLogProperty = new
                                             {
                                                 HttpRequestUrl = response.ResponseUri,
@@ -118,8 +113,8 @@
                                                 MediaType = response.ContentType,
                                                 ResponseTimeMilliseconds = (int)stopwatch.ElapsedMilliseconds,
                                                 ResponseContentLength = (int)response.ContentLength,
-                                                RawResponseBody = isJsonResponse ? response.Content : "Response not in json format",
-                                                ResponseBody = isJsonResponse ? GetFormatedResponseContent(response) : "Response not in json format"
+                                                RawResponseContent = request.GetRawResponseContentForLogging(response.Content, response.ContentType),
+                                                ResponseContent = request.GetResponseContentForLogging(response.Content, response.ContentType)
                                             };
 
                 _logger?.ForContext("RestClient", restClientLogProperty, destructureObjects: true)
@@ -128,20 +123,6 @@
             catch (Exception e)
             {
                 _logger?.Warning(e, "There was a problem logging the rest response");
-            }
-        }
-
-        private string GetFormatedResponseContent(IRestResponse response)
-        {
-            try
-            {
-                var jObject = (JObject)JsonConvert.DeserializeObject(response.Content);
-
-                return JsonConvert.SerializeObject(jObject, Formatting.Indented);
-            }
-            catch
-            {
-                return "Could not format the raw response body";
             }
         }
     }
