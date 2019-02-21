@@ -2,8 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Net;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using Collector.Common.RestClient.Authorization;
@@ -140,6 +142,48 @@
             Assert.AreEqual(expectedError.Message, exception.Error.Message);
             CollectionAssert.AreEqual(expectedError.Errors.Select(e => e.Message), exception.Error.Errors.Select(e => e.Message));
             CollectionAssert.AreEqual(expectedError.Errors.Select(e => e.Reason), exception.Error.Errors.Select(e => e.Reason));
+        }
+
+        [Test]
+        public async Task When_executing_call_async_the_decimal_property_is_converted_to_string_using_invariant_culture()
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("sv-SE");
+            var request = new GetRequestWithResponse(new DummyResourceIdentifier());
+
+            await _sut.CallAsync(request);
+
+            var restRequest = _restClientWrapper.LastRequest;
+            var decimalPropertyParameter = restRequest.Parameters.First(p => p.Name == nameof(GetRequestWithResponse.DecimalProperty));
+
+            Assert.AreEqual("3.14159265359", decimalPropertyParameter.Value);
+        }
+
+        [Test]
+        public async Task When_executing_call_async_the_double_property_is_converted_to_string_using_invariant_culture()
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("sv-SE");
+            var request = new GetRequestWithResponse(new DummyResourceIdentifier());
+
+            await _sut.CallAsync(request);
+
+            var restRequest = _restClientWrapper.LastRequest;
+            var doublePropertyParameter = restRequest.Parameters.First(p => p.Name == nameof(GetRequestWithResponse.DoubleProperty));
+
+            Assert.AreEqual("2.7182818284", doublePropertyParameter.Value);
+        }
+
+        [Test]
+        public async Task When_executing_call_async_the_float_property_is_converted_to_string_using_invariant_culture()
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("sv-SE");
+            var request = new GetRequestWithResponse(new DummyResourceIdentifier());
+
+            await _sut.CallAsync(request);
+
+            var restRequest = _restClientWrapper.LastRequest;
+            var floatPropertyParameter = restRequest.Parameters.First(p => p.Name == nameof(GetRequestWithResponse.FloatProperty));
+
+            Assert.AreEqual("1.41421", floatPropertyParameter.Value);
         }
 
         private void ConfigureRestSharpFakeWrapper(Error error = null, IEnumerable<ErrorInfo> errorInfos = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
