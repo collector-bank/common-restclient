@@ -66,4 +66,87 @@ var provider = new ApiClientBuilder()
                 .WithContextFunction(() => CorrelationState.GetCurrentCorrelationId()?.ToString()) // Collector.Common.Correlation
                 .Build();
 ```
+## Overriding default response parsers
+Implement ISuccessfulResponseParser and IErrorResponseParser in a base class, and let all request contracts inherit from this class.
+
+```csharp
+public abstract class MyApiBaseRequest<TResourceIdentifier, TResponse>
+    : RequestBase<TResourceIdentifier, TResponse>,
+        ISuccessfulResponseParser<TResponse>,
+        IErrorResponseParser
+    where TResourceIdentifier : class, IResourceIdentifier
+    where TResponse : class
+{
+    protected MyApiBaseRequest(TResourceIdentifier resourceIdentifier)
+        : base(resourceIdentifier)
+    {
+    }
+
+    public TResponse ParseResponse(string content)
+    {
+        // Plain JSON parser
+        return JsonConvert.DeserializeObject<TResponse>(content);
+    }
+
+    public Error ParseError(string content)
+    {
+        // Plain JSON parser
+        var myError = JsonConvert.DeserializeObject<MyApiErrorResponse>(content);
+
+        return new Error(
+            code: myError.ErrorCode.ToString(),
+            message: myError.ErrorMessage
+        );
+    }
+}
+
+public class MyApiExampleRequest
+    : MyApiBaseRequest<MyApiExampleResourceIdentifier, MyApiExampleResponse>
+{
+    public MyApiExampleRequest()
+        : base(new MyApiExampleResourceIdentifier())
+    {
+    }
+
+    public override HttpMethod GetHttpMethod()
+    {
+        return HttpMethod.GET;
+    }
+
+    public override string GetConfigurationKey()
+    {
+        return "MyApi";
+    }
+}
+
+public class MyApiExampleResourceIdentifier : ResourceIdentifier
+{
+    public override string Uri => "myapi/example";
+}
+
+public class MyApiExampleResponse
+{
+    public MyApiExampleResponse(string message)
+    {
+        Message = message;
+    }
+
+    public string Message { get; }
+}
+
+public class MyApiErrorResponse
+{
+    public MyApiErrorResponse(string errorMessage, int errorCode)
+    {
+        ErrorMessage = errorMessage;
+        ErrorCode = errorCode;
+    }
+
+    [JsonRequired]
+    public string ErrorMessage { get; }
+
+    [JsonRequired]
+    public int ErrorCode { get; }
+}
+```
 
