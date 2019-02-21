@@ -1,6 +1,7 @@
 ﻿namespace Collector.Common.RestClient.RestSharpClient
 {
     using System;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -77,7 +78,25 @@
                 return;
 
             foreach (var parameter in parameters)
-                restRequest.AddParameter(parameter.Name, parameter.Value, "application/json", ParameterType.GetOrPost);
+                restRequest.AddParameter(parameter.Name, FormatParameterValue(parameter.Value), "application/json", ParameterType.GetOrPost);
+        }
+
+        private static object FormatParameterValue(object value)
+        {
+            switch (value)
+            {
+                case decimal decimalValue:
+                    return decimalValue.ToString(CultureInfo.InvariantCulture);
+
+                case double doubleValue:
+                    return doubleValue.ToString(CultureInfo.InvariantCulture);
+
+                case float floatValue:
+                    return floatValue.ToString(CultureInfo.InvariantCulture);
+
+                default:
+                    return value;
+            }
         }
 
         private static RestRequest CreateRestRequest<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier

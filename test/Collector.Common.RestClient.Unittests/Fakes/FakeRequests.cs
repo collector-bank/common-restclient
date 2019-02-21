@@ -55,6 +55,27 @@
         }
     }
 
+    public class GetRequestWithResponse : RequestBase<DummyResourceIdentifier, string>
+    {
+        public GetRequestWithResponse(DummyResourceIdentifier resourceIdentifier)
+            : base(resourceIdentifier)
+        {
+        }
+
+        public decimal DecimalProperty { get; set; } = 3.14159265359m;
+
+        public double DoubleProperty { get; set; } = 2.7182818284;
+
+        public float FloatProperty { get; set; } = 1.41421f;
+
+        public override HttpMethod GetHttpMethod() => HttpMethod.GET;
+
+        public override string GetConfigurationKey()
+        {
+            return "Test";
+        }
+    }
+
     public class DummyResourceIdentifier : ResourceIdentifier
     {
         public override string Uri => "api.url.com";
