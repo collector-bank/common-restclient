@@ -76,7 +76,7 @@
         }
     }
 
-    public class GetRequestEnumerable : RequestBase<DummyResourceIdentifier, string>
+    public class GetRequestEnumerable : RequestBase<DummyResourceIdentifier>
     {
         public GetRequestEnumerable(DummyResourceIdentifier resourceIdentifier)
             : base(resourceIdentifier)
@@ -97,6 +97,21 @@
 
         // ReSharper disable once UnusedMember.Global
         public IEnumerable<TestEnum> EnumerableEnumProperty { get; set; } = new List<TestEnum>(2) { TestEnum.Foo, TestEnum.Baar };
+
+        public override HttpMethod GetHttpMethod() => HttpMethod.GET;
+
+        public override string GetConfigurationKey()
+        {
+            return "Test";
+        }
+    }
+
+    public class GetRequestWithoutPropertiesWithoutResponse : RequestBase<DummyResourceIdentifier>
+    {
+        public GetRequestWithoutPropertiesWithoutResponse(DummyResourceIdentifier resourceIdentifier)
+            : base(resourceIdentifier)
+        {
+        }
 
         public override HttpMethod GetHttpMethod() => HttpMethod.GET;
 

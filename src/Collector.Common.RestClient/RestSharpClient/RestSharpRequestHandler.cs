@@ -72,6 +72,11 @@
 
             var properties = GetApplicableProperties(request);
 
+            if (!properties.Any())
+            {
+                return;
+            }
+
             AddParametersFromProperties(properties, request, restRequest);
 
             AddParametersFromEnumerableProperties(properties, request, restRequest);

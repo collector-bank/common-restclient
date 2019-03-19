@@ -46,7 +46,7 @@
         }
 
         [Test]
-        public async Task When_request_has_enumerable_the_values_are_set_in_query_string()
+        public async Task When_get_request_has_enumerable_the_values_are_set_in_query_string()
         {
             var request = new GetRequestEnumerable(new DummyResourceIdentifier());
             
@@ -73,6 +73,18 @@
             Assert.AreEqual(TestEnum.Foo, restRequest.Parameters[6].Value);
             Assert.AreEqual("EnumerableEnumProperty", restRequest.Parameters[7].Name);
             Assert.AreEqual(TestEnum.Baar, restRequest.Parameters[7].Value);
+        }
+
+        [Test]
+        public async Task When_get_request_has_no_properties_no_values_are_set_in_query_string()
+        {
+            var request = new GetRequestWithoutPropertiesWithoutResponse(new DummyResourceIdentifier());
+            
+            await _sut.CallAsync(request);
+
+            var restRequest = _restClientWrapper.LastRequest;
+
+            Assert.IsEmpty(restRequest.Parameters);
         }
 
         [Test]
