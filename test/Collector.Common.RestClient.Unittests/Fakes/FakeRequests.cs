@@ -76,8 +76,45 @@
         }
     }
 
+    public class GetRequestEnumerable : RequestBase<DummyResourceIdentifier, string>
+    {
+        public GetRequestEnumerable(DummyResourceIdentifier resourceIdentifier)
+            : base(resourceIdentifier)
+        {
+        }
+
+        // ReSharper disable once UnusedMember.Global
+        public string StringProperty { get; set; } = "StringVal";
+        
+        // ReSharper disable once UnusedMember.Global
+        public decimal DecimalProperty { get; set; } = 3.14159265359m;
+
+        // ReSharper disable once UnusedMember.Global
+        public TestEnum TestEnumProperty { get; set; } = TestEnum.Foo;
+
+        // ReSharper disable once UnusedMember.Global
+        public IEnumerable<string> EnumerableStringProperty { get; set; } = new List<string>(3) { "test1", "test2", "test3" };
+
+        // ReSharper disable once UnusedMember.Global
+        public IEnumerable<TestEnum> EnumerableEnumProperty { get; set; } = new List<TestEnum>(2) { TestEnum.Foo, TestEnum.Baar };
+
+        public override HttpMethod GetHttpMethod() => HttpMethod.GET;
+
+        public override string GetConfigurationKey()
+        {
+            return "Test";
+        }
+    }
+
     public class DummyResourceIdentifier : ResourceIdentifier
     {
         public override string Uri => "api.url.com";
+    }
+
+    public enum TestEnum
+    {
+        Foo,
+        Baar,
+        Baaz
     }
 }

@@ -46,6 +46,36 @@
         }
 
         [Test]
+        public async Task When_request_has_enumerable_the_values_are_set_in_query_string()
+        {
+            var request = new GetRequestEnumerable(new DummyResourceIdentifier());
+            
+            await _sut.CallAsync(request);
+
+            var restRequest = _restClientWrapper.LastRequest;
+
+            Assert.AreEqual("StringProperty", restRequest.Parameters[0].Name);
+            Assert.AreEqual("StringVal", restRequest.Parameters[0].Value);
+            Assert.AreEqual("DecimalProperty", restRequest.Parameters[1].Name);
+            Assert.AreEqual("3.14159265359", restRequest.Parameters[1].Value);
+
+            Assert.AreEqual("TestEnumProperty", restRequest.Parameters[2].Name);
+            Assert.AreEqual(TestEnum.Foo, restRequest.Parameters[2].Value);
+
+            Assert.AreEqual("EnumerableStringProperty", restRequest.Parameters[3].Name);
+            Assert.AreEqual("test1", restRequest.Parameters[3].Value);
+            Assert.AreEqual("EnumerableStringProperty", restRequest.Parameters[4].Name);
+            Assert.AreEqual("test2", restRequest.Parameters[4].Value);
+            Assert.AreEqual("EnumerableStringProperty", restRequest.Parameters[5].Name);
+            Assert.AreEqual("test3", restRequest.Parameters[5].Value);
+            
+            Assert.AreEqual("EnumerableEnumProperty", restRequest.Parameters[6].Name);
+            Assert.AreEqual(TestEnum.Foo, restRequest.Parameters[6].Value);
+            Assert.AreEqual("EnumerableEnumProperty", restRequest.Parameters[7].Name);
+            Assert.AreEqual(TestEnum.Baar, restRequest.Parameters[7].Value);
+        }
+
+        [Test]
         public void When_authentication_is_provided_it_will_get_authorization_header()
         {
             var authorizationHeaderFactory = new Mock<IAuthorizationHeaderFactory>();
