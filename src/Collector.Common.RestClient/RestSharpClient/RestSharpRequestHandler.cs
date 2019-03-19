@@ -62,6 +62,18 @@
             return await GetResponseAsync<TResponse>(restRequest, request).ConfigureAwait(false);
         }
 
+        private static RestRequest CreateRestRequest<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier
+        {
+            var restRequest = new RestRequest(request.GetResourceIdentifier().Uri, GetMethod(request.GetHttpMethod()))
+                              {
+                                  JsonSerializer = new NewtonsoftJsonSerializer()
+                              };
+
+            AddParametersFromRequest(restRequest, request);
+
+            return restRequest;
+        }
+
         private static void AddParametersFromRequest(IRestRequest restRequest, object request)
         {
             if (restRequest.Method != Method.GET && restRequest.Method != Method.DELETE)
@@ -137,18 +149,6 @@
                 default:
                     return value;
             }
-        }
-
-        private static RestRequest CreateRestRequest<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier
-        {
-            var restRequest = new RestRequest(request.GetResourceIdentifier().Uri, GetMethod(request.GetHttpMethod()))
-                              {
-                                  JsonSerializer = new NewtonsoftJsonSerializer()
-                              };
-
-            AddParametersFromRequest(restRequest, request);
-
-            return restRequest;
         }
 
         private static Method GetMethod(HttpMethod method)
