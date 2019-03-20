@@ -1,10 +1,13 @@
 ﻿namespace Collector.Common.RestClient.RestSharpClient
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Reflection;
     using System.Threading.Tasks;
 
     using Collector.Common.RestClient.Exceptions;
@@ -59,6 +62,18 @@
             return await GetResponseAsync<TResponse>(restRequest, request).ConfigureAwait(false);
         }
 
+        private static RestRequest CreateRestRequest<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier
+        {
+            var restRequest = new RestRequest(request.GetResourceIdentifier().Uri, GetMethod(request.GetHttpMethod()))
+                              {
+                                  JsonSerializer = new NewtonsoftJsonSerializer()
+                              };
+
+            AddParametersFromRequest(restRequest, request);
+
+            return restRequest;
+        }
+
         private static void AddParametersFromRequest(IRestRequest restRequest, object request)
         {
             if (restRequest.Method != Method.GET && restRequest.Method != Method.DELETE)
@@ -67,18 +82,55 @@
                 return;
             }
 
-            var parameters = request.GetType()
-                                    .GetProperties()
-                                    .Where(p => p.GetValue(request, null) != null)
-                                    .Where(p => !typeof(IResourceIdentifier).IsAssignableFrom(p.PropertyType))
-                                    .Select(p => new { p.Name, Value = p.GetValue(request, null) })
-                                    .ToList();
+            var properties = GetApplicableProperties(request);
 
-            if (!parameters.Any())
+            if (!properties.Any())
+            {
                 return;
+            }
+
+            AddParametersFromProperties(properties, request, restRequest);
+
+            AddParametersFromEnumerableProperties(properties, request, restRequest);
+        }
+
+        private static List<PropertyInfo> GetApplicableProperties(object request)
+        {
+            return request.GetType()
+                          .GetProperties()
+                          .Where(p => p.GetValue(request, null) != null)
+                          .Where(p => !typeof(IResourceIdentifier).IsAssignableFrom(p.PropertyType))
+                          .ToList();
+        }
+
+        private static void AddParametersFromProperties(List<PropertyInfo> properties, object request, IRestRequest restRequest)
+        {
+            var parameters = properties.Where(p => p.PropertyType == typeof(string) || p.PropertyType.GetInterface(nameof(IEnumerable)) == null)
+                                       .Select(p => new { p.Name, Value = p.GetValue(request, null) })
+                                       .ToList();
 
             foreach (var parameter in parameters)
+            {
                 restRequest.AddParameter(parameter.Name, FormatParameterValue(parameter.Value), "application/json", ParameterType.GetOrPost);
+            }
+        }
+
+        private static void AddParametersFromEnumerableProperties(List<PropertyInfo> properties, object request, IRestRequest restRequest)
+        {
+            var enumerableProperties = properties.Where(p => p.PropertyType.GetInterface(nameof(IEnumerable)) == typeof(IEnumerable))
+                                                 .Where(p => p.PropertyType != typeof(string))
+                                                 .Where(p => p.PropertyType.GetInterface(nameof(IDictionary)) == null)
+                                                 .ToList();
+
+            foreach (var property in enumerableProperties)
+            {
+                var enumerable = (IEnumerable)property.GetValue(request, null);
+
+                foreach (var value in enumerable)
+                {
+                    restRequest.AddParameter(property.Name, FormatParameterValue(value), "application/json", ParameterType.GetOrPost);
+                }
+            }
         }
 
         private static object FormatParameterValue(object value)
@@ -97,18 +149,6 @@
                 default:
                     return value;
             }
-        }
-
-        private static RestRequest CreateRestRequest<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) where TResourceIdentifier : class, IResourceIdentifier
-        {
-            var restRequest = new RestRequest(request.GetResourceIdentifier().Uri, GetMethod(request.GetHttpMethod()))
-                              {
-                                  JsonSerializer = new NewtonsoftJsonSerializer()
-                              };
-
-            AddParametersFromRequest(restRequest, request);
-
-            return restRequest;
         }
 
         private static Method GetMethod(HttpMethod method)
