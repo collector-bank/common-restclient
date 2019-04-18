@@ -93,6 +93,16 @@
         }
 
         [Test]
+        public void When_api_builder_is_configured_with_resilience_handler_it_will_hold_the_resilience_handler()
+        {
+            var resilienceHandler = new Mock<IResilienceHandler>();
+
+            var builder = _sut.WithResilience(resilienceHandler.Object);
+
+            Assert.AreEqual(resilienceHandler.Object, builder.ResilienceHandler);
+        }
+
+        [Test]
         public void When_building_it_will_throw_exception_if_no_contracts_are_configured()
         {
             Assert.Throws<RestClientConfigurationException>(() => _sut.Build());
