@@ -12,18 +12,18 @@
     internal class RestApiClient : IRestApiClient
     {
         private readonly IRequestHandler _requestHandler;
-        private readonly Func<string> _contexFunc;
+        private readonly Func<string> _contextFunc;
 
-        public RestApiClient(IRequestHandler requestHandler, Func<string> contexFunc)
+        public RestApiClient(IRequestHandler requestHandler, Func<string> contextFunc)
         {
             _requestHandler = requestHandler;
-            _contexFunc = contexFunc;
+            _contextFunc = contextFunc;
         }
 
         public Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) 
             where TResourceIdentifier : class, IResourceIdentifier
         {
-            request.Context = request.Context ?? _contexFunc?.Invoke();
+            request.Context = request.Context ?? _contextFunc?.Invoke();
             EnsureRequestObjectIsValid(request);
             return _requestHandler.CallAsync(request);
         }
@@ -32,7 +32,7 @@
             where TResourceIdentifier : class, IResourceIdentifier
             where TResponse : class
         {
-            request.Context = request.Context ?? _contexFunc?.Invoke();
+            request.Context = request.Context ?? _contextFunc?.Invoke();
             EnsureRequestObjectIsValid(request);
             var response = await _requestHandler.CallAsync(request).ConfigureAwait(false);
             
