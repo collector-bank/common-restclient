@@ -13,11 +13,13 @@
     {
         private readonly IRequestHandler _requestHandler;
         private readonly Func<string> _contextFunc;
+        private readonly IResilienceHandler _resilienceHandler;
 
-        public RestApiClient(IRequestHandler requestHandler, Func<string> contextFunc)
+        public RestApiClient(IRequestHandler requestHandler, Func<string> contextFunc = null, IResilienceHandler resilienceHandler = null)
         {
             _requestHandler = requestHandler;
             _contextFunc = contextFunc;
+            _resilienceHandler = resilienceHandler;
         }
 
         public Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) 
@@ -25,7 +27,13 @@
         {
             request.Context = request.Context ?? _contextFunc?.Invoke();
             EnsureRequestObjectIsValid(request);
-            return _requestHandler.CallAsync(request);
+
+            if (_resilienceHandler == null)
+            {
+                return _requestHandler.CallAsync(request);
+            }
+
+            return _resilienceHandler.ExecuteAsync(request, () => _requestHandler.CallAsync(request));
         }
 
         public async Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request) 
@@ -34,9 +42,13 @@
         {
             request.Context = request.Context ?? _contextFunc?.Invoke();
             EnsureRequestObjectIsValid(request);
-            var response = await _requestHandler.CallAsync(request).ConfigureAwait(false);
-            
-            return response;
+
+            if (_resilienceHandler == null)
+            {
+                return await _requestHandler.CallAsync(request).ConfigureAwait(false);
+            }
+
+            return await _resilienceHandler.ExecuteAsync(request, () => _requestHandler.CallAsync(request)).ConfigureAwait(false);
         }
 
         private void EnsureRequestObjectIsValid(IRequest request)
