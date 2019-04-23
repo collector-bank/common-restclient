@@ -8,10 +8,10 @@
 
     public interface IResilienceHandler
     {
-        Task ExecuteAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request, Func<Task> func)
+        Task ExecuteAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request, Func<RequestBase<TResourceIdentifier>, Task> func)
             where TResourceIdentifier : class, IResourceIdentifier;
 
-        Task<TResponse> ExecuteAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request, Func<Task<TResponse>> func)
+        Task<TResponse> ExecuteAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request, Func<RequestBase<TResourceIdentifier, TResponse>, Task<TResponse>> func)
             where TResourceIdentifier : class, IResourceIdentifier
             where TResponse : class;
     }

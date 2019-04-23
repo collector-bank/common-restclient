@@ -33,7 +33,7 @@
                 return _requestHandler.CallAsync(request);
             }
 
-            return _resilienceHandler.ExecuteAsync(request, () => _requestHandler.CallAsync(request));
+            return _resilienceHandler.ExecuteAsync(request,  req => _requestHandler.CallAsync(req));
         }
 
         public async Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request) 
@@ -48,7 +48,7 @@
                 return await _requestHandler.CallAsync(request).ConfigureAwait(false);
             }
 
-            return await _resilienceHandler.ExecuteAsync(request, () => _requestHandler.CallAsync(request)).ConfigureAwait(false);
+            return await _resilienceHandler.ExecuteAsync(request, req => _requestHandler.CallAsync(req)).ConfigureAwait(false);
         }
 
         private void EnsureRequestObjectIsValid(IRequest request)

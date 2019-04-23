@@ -10,6 +10,8 @@
 
     using AutoFixture;
 
+    using Collector.Common.RestContracts;
+
     using Moq;
 
     [TestFixture]
@@ -83,8 +85,8 @@
             _context = _fixture.Create<string>();
             _resilienceHandler = new Mock<IResilienceHandler>();
 
-            _resilienceHandler.Setup(x => x.ExecuteAsync(It.IsAny<RequestWithoutResponse>(), It.IsAny<Func<Task>>())).Returns(Task.FromResult(0)).Verifiable();
-            _resilienceHandler.Setup(x => x.ExecuteAsync(It.IsAny<RequestWithResponse>(), It.IsAny<Func<Task<string>>>())).Returns(Task.FromResult(_expectedValue));
+            _resilienceHandler.Setup(x => x.ExecuteAsync(It.IsAny<RequestWithoutResponse>(), It.IsAny<Func<RequestBase<DummyResourceIdentifier>, Task>>())).Returns(Task.FromResult(0)).Verifiable();
+            _resilienceHandler.Setup(x => x.ExecuteAsync(It.IsAny<RequestWithResponse>(), It.IsAny<Func<RequestBase<DummyResourceIdentifier, string>, Task<string>>>())).Returns(Task.FromResult(_expectedValue));
 
             _sut = new RestApiClient(_stub.Object, () => _context, _resilienceHandler.Object);
         }
