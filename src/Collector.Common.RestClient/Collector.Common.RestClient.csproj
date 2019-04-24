@@ -5,7 +5,7 @@
     <PackageId>Collector.Common.RestClient</PackageId>
     <Company>Collector Bank AB</Company>
     <Product>Collector.Common.RestClient</Product>
-    <Version>18.1.0</Version>
+    <Version>18.3.0</Version>
     <Description>Rest API client to use with RestContracts and RestApi</Description>
     <Authors>Team Nohm</Authors>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>

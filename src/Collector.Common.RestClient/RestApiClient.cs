@@ -12,31 +12,43 @@
     internal class RestApiClient : IRestApiClient
     {
         private readonly IRequestHandler _requestHandler;
-        private readonly Func<string> _contexFunc;
+        private readonly Func<string> _contextFunc;
+        private readonly IResilienceHandler _resilienceHandler;
 
-        public RestApiClient(IRequestHandler requestHandler, Func<string> contexFunc)
+        public RestApiClient(IRequestHandler requestHandler, Func<string> contextFunc = null, IResilienceHandler resilienceHandler = null)
         {
             _requestHandler = requestHandler;
-            _contexFunc = contexFunc;
+            _contextFunc = contextFunc;
+            _resilienceHandler = resilienceHandler;
         }
 
         public Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) 
             where TResourceIdentifier : class, IResourceIdentifier
         {
-            request.Context = request.Context ?? _contexFunc?.Invoke();
+            request.Context = request.Context ?? _contextFunc?.Invoke();
             EnsureRequestObjectIsValid(request);
-            return _requestHandler.CallAsync(request);
+
+            if (_resilienceHandler == null)
+            {
+                return _requestHandler.CallAsync(request);
+            }
+
+            return _resilienceHandler.ExecuteAsync(request,  req => _requestHandler.CallAsync(req));
         }
 
         public async Task<TResponse> CallAsync<TResourceIdentifier, TResponse>(RequestBase<TResourceIdentifier, TResponse> request) 
             where TResourceIdentifier : class, IResourceIdentifier
             where TResponse : class
         {
-            request.Context = request.Context ?? _contexFunc?.Invoke();
+            request.Context = request.Context ?? _contextFunc?.Invoke();
             EnsureRequestObjectIsValid(request);
-            var response = await _requestHandler.CallAsync(request).ConfigureAwait(false);
-            
-            return response;
+
+            if (_resilienceHandler == null)
+            {
+                return await _requestHandler.CallAsync(request).ConfigureAwait(false);
+            }
+
+            return await _resilienceHandler.ExecuteAsync(request, req => _requestHandler.CallAsync(req)).ConfigureAwait(false);
         }
 
         private void EnsureRequestObjectIsValid(IRequest request)

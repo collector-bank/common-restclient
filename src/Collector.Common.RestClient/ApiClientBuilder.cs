@@ -23,10 +23,11 @@
 
         internal readonly IDictionary<string, TimeSpan> Timeouts = new Dictionary<string, TimeSpan>();
 
+        internal IResilienceHandler ResilienceHandler;
+
         private ILogger _logger;
         private Func<string> _contextFunc;
         private Func<string, string> _configurationKeyDecorator = s => s;
-
 
 #if NET45
         /// <summary>
@@ -97,6 +98,12 @@
             return this;
         }
 
+        public ApiClientBuilder WithResilience(IResilienceHandler resilienceHandler)
+        {
+            ResilienceHandler = resilienceHandler;
+            return this;
+        }
+
         public ApiClientBuilder RegisterAuthenticator(string authenticationMethod, Func<IConfigReader, IAuthorizationConfiguration> authorizationConfigurationBuilder)
         {
             if (authorizationConfigurationBuilder == null)
@@ -136,7 +143,7 @@
 
             var requestHandler = new RestSharpRequestHandler(wrapper);
 
-            return new RestApiClient(requestHandler, _contextFunc);
+            return new RestApiClient(requestHandler, _contextFunc, ResilienceHandler);
         }
 
         protected void ConfigureContractKey(string contractKey, IConfigReader configReader)
