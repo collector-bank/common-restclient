@@ -228,6 +228,29 @@
             Assert.AreEqual("1.41421", floatPropertyParameter.Value);
         }
 
+        [Test]
+        public async Task When_executing_call_async_and_the_request_has_headers_then_headers_are_added_to_rest_request()
+        {
+            var name = _fixture.Create<string>();
+            var value = _fixture.Create<string>();
+            var request = new RequestWithoutResponse(new DummyResourceIdentifier())
+                          {
+                              Headers = new Dictionary<string, string>
+                                        {
+                                            { name, value }
+                                        }
+                          };
+
+            await _sut.CallAsync(request);
+
+            var restRequest = (RestRequest)_restClientWrapper.LastRequest;
+
+            var result = restRequest.Parameters.SingleOrDefault(p => p.Name == name && p.Type == ParameterType.HttpHeader);
+
+            Assert.NotNull(result);
+            Assert.AreEqual(value, result.Value);
+        }
+
         private void ConfigureRestSharpFakeWrapper(Error error = null, IEnumerable<ErrorInfo> errorInfos = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
         {
             var expectedError = error ?? _fixture.Create<Error>();
