@@ -243,7 +243,7 @@
 
             await _sut.CallAsync(request);
 
-            var restRequest = (RestRequest)_restClientWrapper.LastRequest;
+            var restRequest = _restClientWrapper.LastRequest;
 
             var result = restRequest.Parameters.SingleOrDefault(p => p.Name == name && p.Type == ParameterType.HttpHeader);
 
