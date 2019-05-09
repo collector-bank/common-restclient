@@ -74,8 +74,10 @@
             return restRequest;
         }
 
-        private static void AddParametersFromRequest(IRestRequest restRequest, object request)
+        private static void AddParametersFromRequest(IRestRequest restRequest, IRequest request)
         {
+            AddHeaders(restRequest, request.Headers);
+
             if (restRequest.Method != Method.GET && restRequest.Method != Method.DELETE)
             {
                 restRequest.AddJsonBody(request);
@@ -92,6 +94,14 @@
             AddParametersFromProperties(properties, request, restRequest);
 
             AddParametersFromEnumerableProperties(properties, request, restRequest);
+        }
+
+        private static void AddHeaders(IRestRequest restRequest, IDictionary<string, string> headers)
+        {
+            foreach (var header in headers)
+            {
+                restRequest.AddHeader(header.Key, header.Value ?? string.Empty);
+            }
         }
 
         private static List<PropertyInfo> GetApplicableProperties(object request)
@@ -160,6 +170,7 @@
 
         private static RestClientCallException ParseError(IRestResponse response, IRequest request)
         {
+            // ReSharper disable once SuspiciousTypeConversion.Global
             var parser = request as IErrorResponseParser ?? new DefaultErrorResponseParser();
             var error = parser.ParseError(response.Content);
             return error?.Message != null
@@ -172,6 +183,7 @@
             if (typeof(TResponse) == typeof(Stream))
                 return new MemoryStream(response.RawBytes) as TResponse;
 
+            // ReSharper disable once SuspiciousTypeConversion.Global
             var parser = request as ISuccessfulResponseParser<TResponse> ?? new DefaultSuccessfulResponseParser<TResponse>();
 
             return parser.ParseResponse(response.Content);
