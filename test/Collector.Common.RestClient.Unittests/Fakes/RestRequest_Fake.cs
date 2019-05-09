@@ -31,8 +31,6 @@
 
         public List<Parameter> Parameters { get; } = new List<Parameter>();
 
-        public Dictionary<string, string> Headers { get; } = new Dictionary<string, string>();
-
         public List<FileParameter> Files { get; } = new List<FileParameter>();
 
         public Method Method { get; set; }
@@ -137,8 +135,7 @@
 
         public IRestRequest AddHeader(string name, string value)
         {
-            Headers.Add(name, value);
-            return this;
+            throw new NotImplementedException();
         }
 
         public IRestRequest AddCookie(string name, string value)
