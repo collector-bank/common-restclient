@@ -88,15 +88,50 @@
         }
 
         [Test]
-        public void When_authentication_is_provided_it_will_get_authorization_header()
+        public void When_authentication_factory_returns_value_then_authorization_header_is_set()
         {
+            var expectedToken = _fixture.Create<string>();
+
             var authorizationHeaderFactory = new Mock<IAuthorizationHeaderFactory>();
+
+            authorizationHeaderFactory
+                .Setup(factory => factory.Get(It.IsAny<RestAuthorizeRequestData>()))
+                .Returns(expectedToken);
 
             _restClientWrapper.Authenticator = new RestSharpAuthenticator(authorizationHeaderFactory.Object);
 
             _restClientWrapper.Authenticator.Authenticate(_restClient, _restRequest);
 
-            authorizationHeaderFactory.Verify(x => x.Get(It.IsAny<RestAuthorizeRequestData>()));
+            var authorizationHeader = _restRequest
+                                      .Parameters
+                                      .FirstOrDefault(p => 
+                                                          p.Type == ParameterType.HttpHeader && 
+                                                          p.Name == "Authorization" &&
+                                                          p.Value.Equals(expectedToken));
+
+            Assert.NotNull(authorizationHeader);
+        }
+
+        [Test]
+        public void When_authentication_factory_returns_null_then_authorization_header_is_not_set()
+        {
+            var authorizationHeaderFactory = new Mock<IAuthorizationHeaderFactory>();
+
+            authorizationHeaderFactory
+                .Setup(factory => factory.Get(It.IsAny<RestAuthorizeRequestData>()))
+                .Returns((string)null);
+
+            _restClientWrapper.Authenticator = new RestSharpAuthenticator(authorizationHeaderFactory.Object);
+
+            _restClientWrapper.Authenticator.Authenticate(_restClient, _restRequest);
+
+            var authorizationHeader = _restRequest
+                                      .Parameters
+                                      .FirstOrDefault(p =>
+                                                          p.Type == ParameterType.HttpHeader &&
+                                                          p.Name == "Authorization");
+
+            Assert.Null(authorizationHeader);
         }
 
         [Test]
@@ -233,13 +268,8 @@
         {
             var name = _fixture.Create<string>();
             var value = _fixture.Create<string>();
-            var request = new RequestWithoutResponse(new DummyResourceIdentifier())
-                          {
-                              Headers = new Dictionary<string, string>
-                                        {
-                                            { name, value }
-                                        }
-                          };
+            var request = new RequestWithoutResponse(new DummyResourceIdentifier());
+            request.AddHeader(name, value);
 
             await _sut.CallAsync(request);
 

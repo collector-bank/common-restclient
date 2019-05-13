@@ -74,9 +74,10 @@
             return restRequest;
         }
 
-        private static void AddParametersFromRequest(IRestRequest restRequest, IRequest request)
+        private static void AddParametersFromRequest<TResourceIdentifier>(IRestRequest restRequest, RequestBase<TResourceIdentifier> request) 
+            where TResourceIdentifier : class, IResourceIdentifier
         {
-            AddHeaders(restRequest, request.Headers);
+            AddHeaders(restRequest, request.GetHeaders());
 
             if (restRequest.Method != Method.GET && restRequest.Method != Method.DELETE)
             {
@@ -96,7 +97,7 @@
             AddParametersFromEnumerableProperties(properties, request, restRequest);
         }
 
-        private static void AddHeaders(IRestRequest restRequest, IDictionary<string, string> headers)
+        private static void AddHeaders(IRestRequest restRequest, IReadOnlyDictionary<string, string> headers)
         {
             foreach (var header in headers)
             {
