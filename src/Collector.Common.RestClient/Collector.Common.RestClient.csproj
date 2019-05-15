@@ -5,7 +5,7 @@
     <PackageId>Collector.Common.RestClient</PackageId>
     <Company>Collector Bank AB</Company>
     <Product>Collector.Common.RestClient</Product>
-    <Version>18.3.6</Version>
+    <Version>18.4.0</Version>
     <Description>Rest API client to use with RestContracts and RestApi</Description>
     <Authors>Team Nohm</Authors>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Collector.Common.RestContracts" Version="[9.0.3,10.0.0)" />
+    <PackageReference Include="Collector.Common.RestContracts" Version="[9.1.0,10.0.0)" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Serilog" Version="[2.5.0,3.0.0)" />
   </ItemGroup>
