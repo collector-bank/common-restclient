@@ -23,6 +23,10 @@
             var httpRequestData = new RestAuthorizeRequestData(body, client.BuildUri(request), request.Method);
 
             var authorizationHeaderValue = AuthorizationHeaderFactory.Get(httpRequestData);
+            if (authorizationHeaderValue == null)
+            {
+                return;
+            }
 
             request.AddParameter("Authorization", authorizationHeaderValue, ParameterType.HttpHeader);
         }
