@@ -28,29 +28,13 @@
         private ILogger _logger;
         private Func<string> _contextFunc;
         private Func<string, string> _configurationKeyDecorator = s => s;
-
-#if NET45
+        
         /// <summary>
         /// Configure the IRestApiClient using app config values.
         /// </summary>
-        public ApiClientBuilder ConfigureFromAppSettings()
-        {
-            foreach (var baseUrlSetting in System.Configuration.ConfigurationManager.AppSettings.AllKeys.Where(k => k.StartsWith("RestClient:")).Where(k => k.EndsWith(".BaseUrl")))
-            {
-                var contractKey = baseUrlSetting.Split(':').Last().Split('.').First();
-                ConfigureContractKey(contractKey, new AppConfigReader(contractKey));
-            }
-
-            return this;
-        }
-#endif
-#if NETSTANDARD2_0
-/// <summary>
-/// Configure the IRestApiClient using app config values.
-/// </summary>
-/// <summary>
-/// Configure the IRestApiClient using a configuration section.
-/// </summary>
+        /// <summary>
+        /// Configure the IRestApiClient using a configuration section.
+        /// </summary>
         public ApiClientBuilder ConfigureFromConfigSection(Microsoft.Extensions.Configuration.IConfigurationSection configurationSection)
         {
             foreach (var subSection in configurationSection.GetSection("Apis").GetChildren())
@@ -60,7 +44,6 @@
 
             return this;
         }
-#endif
 
         /// <summary>
         /// Configure the IRestApiClient by RestContract key

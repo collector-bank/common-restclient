@@ -3,10 +3,7 @@
     using System;
 
     using Collector.Common.RestClient.Authorization;
-
-#if NETCOREAPP2_0
     using Microsoft.Extensions.Configuration;
-#endif
 
     using NUnit.Framework;
 
@@ -16,7 +13,6 @@
         [Test]
         public void It_can_be_configured_through_either_configuration_sections_or_app_settings()
         {
-#if NETCOREAPP2_0
             var section = new ConfigurationBuilder()
                 .AddJsonFile("configuration.json")
                 .Build()
@@ -25,11 +21,7 @@
             var provider = new ApiClientBuilder()
                 .ConfigureFromConfigSection(section)
                 .Build();
-#elif NET452
-            var provider = new ApiClientBuilder()
-                .ConfigureFromAppSettings()
-                .Build();
-#endif
+
             Assert.NotNull(provider);
         }
 
@@ -39,7 +31,6 @@
         {
             var clientId = Guid.NewGuid().ToString();
 
-#if NETCOREAPP2_0
             var section = new ConfigurationBuilder()
                           .AddJsonFile("configurationWithCustomAuthenticator.json")
                           .Build()
@@ -49,12 +40,6 @@
                            .RegisterAuthenticator("MyCustomAuth", configReader => new Oauth2AuthorizationConfiguration(clientId, "secret", "aud", "issuer", "scopes"))
                            .ConfigureFromConfigSection(section)
                            .Build();
-#elif NET452
-            var provider = new ApiClientBuilder()
-                           .RegisterAuthenticator("MyCustomAuth", configReader => new Oauth2AuthorizationConfiguration(clientId, "secret", "aud", "issuer", "scopes"))
-                           .ConfigureFromAppSettings()
-                           .Build();
-#endif
 
             Assert.NotNull(provider);
         }

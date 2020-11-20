@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Collector.Common.RestClient", "src\Collector.Common.RestClient\Collector.Common.RestClient.csproj", "{5D15908D-91FC-43DB-B554-CA54794BBE42}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Collector.Common.RestClient.UnitTests", "test\Collector.Common.RestClient.Unittests\Collector.Common.RestClient.UnitTests.csproj", "{FF257B49-05AC-40A3-975E-FD5C021B4A0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Collector.Common.RestClient.UnitTests", "test\Collector.Common.RestClient.Unittests\Collector.Common.RestClient.Unittests.csproj", "{FF257B49-05AC-40A3-975E-FD5C021B4A0A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0B89F51D-0F3F-4E48-8CA7-DC71E0223AC2}"
 EndProject

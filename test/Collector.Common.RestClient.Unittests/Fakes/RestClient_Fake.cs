@@ -45,10 +45,11 @@
         public RequestCachePolicy CachePolicy { get; set; }
 
         public bool FollowRedirects { get; set; }
-#if NETCOREAPP2_0
+        
         public bool Pipelined { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        
         public RemoteCertificateValidationCallback RemoteCertificateValidationCallback { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-#endif
+
         public virtual RestRequestAsyncHandle ExecuteAsync(IRestRequest request, Action<IRestResponse, RestRequestAsyncHandle> callback)
         {
             throw new NotImplementedException();
@@ -195,11 +196,9 @@
             throw new NotImplementedException();
         }
 
-#if NETCOREAPP2_0
         public IRestResponse<T> Deserialize<T>(IRestResponse response)
         {
             throw new NotImplementedException();
         }
-#endif
     }
 }
