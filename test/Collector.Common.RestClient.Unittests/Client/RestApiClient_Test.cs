@@ -1,6 +1,8 @@
 ﻿namespace Collector.Common.RestClient.UnitTests.Client
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Collector.Common.RestClient.Exceptions;
@@ -21,6 +23,7 @@
         private Mock<IRequestHandler> _stub;
         private string _context;
         private Fixture _fixture;
+        private IReadOnlyDictionary<string, string> _headers;
 
         [SetUp]
         protected void TestInitialize()
@@ -30,7 +33,8 @@
             _stub.Setup(x => x.CallAsync(It.IsAny<RequestWithResponse>())).Returns(Task.FromResult(_fixture.Create<string>()));
 
             _context = _fixture.Create<string>();
-            _sut = new RestApiClient(_stub.Object, () => _context);
+            _headers = _fixture.CreateMany<KeyValuePair<string, string>>(2).ToDictionary(x => x.Key, x => x.Value);
+            _sut = new RestApiClient(_stub.Object, () => _context, headersFunc: () => _headers);
         }
 
         [Test]
@@ -60,6 +64,26 @@
             await _sut.CallAsync(request);
 
             Assert.AreEqual(_context, request.Context);
+        }
+
+        [Test]
+        public async Task When_executing_call_then_headers_are_set_on_request()
+        {
+            var request = new RequestWithoutResponse(new DummyResourceIdentifier()) { StringProperty = _fixture.Create<string>() };
+
+            await _sut.CallAsync(request);
+
+            CollectionAssert.AreEquivalent(_headers, request.GetHeaders());
+        }
+
+        [Test]
+        public async Task When_executing_call_with_response_then_headers_are_set_on_request()
+        {
+            var request = new RequestWithResponse(new DummyResourceIdentifier()) { StringProperty = _fixture.Create<string>() };
+
+            await _sut.CallAsync(request);
+
+            CollectionAssert.AreEquivalent(_headers, request.GetHeaders());
         }
     }
 

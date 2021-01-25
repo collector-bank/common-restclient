@@ -28,6 +28,7 @@
         private ILogger _logger;
         private Func<string> _contextFunc;
         private Func<string, string> _configurationKeyDecorator = s => s;
+        private Func<IReadOnlyDictionary<string, string>> _headersFunc;
 
 #if NET45
         /// <summary>
@@ -92,6 +93,12 @@
             return this;
         }
 
+        public ApiClientBuilder WithRequestHeaders(Func<IReadOnlyDictionary<string, string>> headersFunc)
+        {
+            _headersFunc = headersFunc;
+            return this;
+        }
+
         public ApiClientBuilder WithConfigurationKeyDecorator(Func<string, string> configurationKeyDecorator)
         {
             _configurationKeyDecorator = configurationKeyDecorator;
@@ -143,7 +150,7 @@
 
             var requestHandler = new RestSharpRequestHandler(wrapper);
 
-            return new RestApiClient(requestHandler, _contextFunc, ResilienceHandler);
+            return new RestApiClient(requestHandler, _contextFunc, ResilienceHandler, _headersFunc);
         }
 
         protected void ConfigureContractKey(string contractKey, IConfigReader configReader)
