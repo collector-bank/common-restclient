@@ -1,6 +1,7 @@
 ﻿namespace Collector.Common.RestClient
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
@@ -14,12 +15,14 @@
         private readonly IRequestHandler _requestHandler;
         private readonly Func<string> _contextFunc;
         private readonly IResilienceHandler _resilienceHandler;
+        private readonly Func<IReadOnlyDictionary<string, string>> _headersFunc;
 
-        public RestApiClient(IRequestHandler requestHandler, Func<string> contextFunc = null, IResilienceHandler resilienceHandler = null)
+        public RestApiClient(IRequestHandler requestHandler, Func<string> contextFunc = null, IResilienceHandler resilienceHandler = null, Func<IReadOnlyDictionary<string, string>> headersFunc = null)
         {
             _requestHandler = requestHandler;
             _contextFunc = contextFunc;
             _resilienceHandler = resilienceHandler;
+            _headersFunc = headersFunc;
         }
 
         public Task CallAsync<TResourceIdentifier>(RequestBase<TResourceIdentifier> request) 
@@ -27,6 +30,7 @@
         {
             request.Context = request.Context ?? _contextFunc?.Invoke();
             EnsureRequestObjectIsValid(request);
+            SetHeaders(request);
 
             if (_resilienceHandler == null)
             {
@@ -42,6 +46,7 @@
         {
             request.Context = request.Context ?? _contextFunc?.Invoke();
             EnsureRequestObjectIsValid(request);
+            SetHeaders(request);
 
             if (_resilienceHandler == null)
             {
@@ -49,6 +54,17 @@
             }
 
             return await _resilienceHandler.ExecuteAsync(request, req => _requestHandler.CallAsync(req)).ConfigureAwait(false);
+        }
+
+        private void SetHeaders(IRequest request)
+        {
+            if (_headersFunc == null)
+                return;
+
+            foreach (var header in _headersFunc())
+            {
+                request.AddHeader(header.Key, header.Value);
+            }
         }
 
         private void EnsureRequestObjectIsValid(IRequest request)
