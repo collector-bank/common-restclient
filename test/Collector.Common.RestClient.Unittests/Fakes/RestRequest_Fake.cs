@@ -157,8 +157,7 @@
         {
             throw new NotImplementedException();
         }
-
-#if NETCOREAPP2_0
+        
         public IRestRequest AddFile(string name, Action<Stream> writer, string fileName, long contentLength, string contentType = null)
         {
             throw new NotImplementedException();
@@ -183,6 +182,5 @@
         {
             throw new NotImplementedException();
         }
-#endif
     }
 }
